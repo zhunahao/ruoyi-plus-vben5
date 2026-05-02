@@ -1,6 +1,7 @@
 // 会员类型定义
 export interface MemberInfo {
   id: number;
+  memberCode?: string;
   name: string;
   phone: string;
   levelId: number;
@@ -13,8 +14,10 @@ export interface MemberInfo {
   todayEarnings: number;
   recommendMemberName: string;
   recommendMemberPhone: string;
+  recommendMemberCode?: string;
   createTime: string;
   status: number; // 0: 禁用, 1: 启用
+  amount?: number; // 充值金额，非接口返回字段，仅用于前端显示和操作
 }
 
 // 会员列表请求参数
@@ -24,6 +27,7 @@ export interface MemberListParams {
   memberCode?: string;
   recommendMemberCode?: string;
   userId?: string;
+  memberId?: string;
 }
 
 // 会员详情响应
@@ -44,6 +48,47 @@ export interface SaveMemberRequest {
 
 // 保存会员响应
 export interface SaveMemberResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface RechargeRecord {
+  id: number;
+  memberId: number;
+  memberCode?: string;
+  memberName?: string;
+  amount: number;
+  balanceBefore: number;
+  balanceAfter: number;
+  rechargeTime: string;
+  status: number; // 0: 已撤回, 1: 已充值
+  operator?: string;
+  remark?: string;
+}
+
+export interface RechargeRecordListResponse {
+  items: RechargeRecord[];
+}
+
+// 会员撤回充值请求
+export interface WithdrawRechargeRequest {
+  financeBalanceRecordId: string;
+}
+
+// 会员撤回充值响应
+export interface WithdrawRechargeResponse {
+  success: boolean;
+  message: string;
+}
+
+// 会员充值请求
+export interface RechargeMemberRequest {
+  userId: number;
+  amount: number;
+}
+
+// 会员充值响应
+export interface RechargeMemberResponse {
   success: boolean;
   message: string;
 }

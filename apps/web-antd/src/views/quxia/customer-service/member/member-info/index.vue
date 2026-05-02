@@ -14,6 +14,8 @@ import { memberApi } from '../api/member-info';
 import { columns, querySchema } from './data';
 import memberAddModal from './member-add-modal.vue';
 import memberEditModal from './member-edit-modal.vue';
+import memberRechargeModal from './member-recharge-modal.vue';
+import memberRechargeWithdrawDrawer from './member-recharge-withdraw-drawer.vue';
 import memberInventoryDrawer from './member-inventory-drawer.vue';
 import parentMemberDrawer from './parent-member-drawer.vue';
 
@@ -23,6 +25,14 @@ const [MemberAddModal, addModalApi] = useVbenModal({
 
 const [MemberEditModal, editModalApi] = useVbenModal({
   connectedComponent: memberEditModal,
+});
+
+const [MemberRechargeModal, rechargeModalApi] = useVbenModal({
+  connectedComponent: memberRechargeModal,
+});
+
+const [MemberRechargeWithdrawDrawer, rechargeWithdrawDrawerApi] = useVbenDrawer({
+  connectedComponent: memberRechargeWithdrawDrawer,
 });
 
 const [ParentMemberDrawer, parentDrawerApi] = useVbenDrawer({
@@ -92,6 +102,16 @@ async function handleEdit(row: Recordable<number>) {
   editModalApi.open();
 }
 
+function handleRecharge(row: Recordable<number>) {
+  rechargeModalApi.setData({ id: row.id });
+  rechargeModalApi.open();
+}
+
+function handleWithdraw(row: Recordable<number>) {
+  rechargeWithdrawDrawerApi.setData({ id: row.id });
+  rechargeWithdrawDrawerApi.open();
+}
+
 function handleViewParent(row: Recordable<number>) {
   parentDrawerApi.setData({ userId: row.userId });
   parentDrawerApi.open();
@@ -149,16 +169,17 @@ function handleViewInventory(row: Recordable<number>) {
       <template #action="{ row }">
         <Space direction="vertical" size="small">
           <Space>
+            <action-button size="small" @click.stop="handleRecharge(row)">
+              充值
+            </action-button>
+            <action-button size="small" @click.stop="handleWithdraw(row)">
+              充值撤回
+            </action-button>
+          </Space>
+          <Space>
             <action-button size="small" danger @click.stop="handleEdit(row)">
               编辑
             </action-button>
-          </Space>
-          <Space>
-            <action-button size="small" @click.stop="handleViewParent(row)">
-              查看父级
-            </action-button>
-          </Space>
-          <Space>
             <action-button
               size="small"
               danger
@@ -167,11 +188,18 @@ function handleViewInventory(row: Recordable<number>) {
               会员库存
             </action-button>
           </Space>
+          <Space>
+            <action-button size="small" @click.stop="handleViewParent(row)">
+              查看父级
+            </action-button>
+          </Space>
         </Space>
       </template>
     </BasicTable>
     <MemberAddModal @reload="tableApi.query()" />
     <MemberEditModal @reload="tableApi.query()" />
+    <MemberRechargeModal @reload="tableApi.query()" />
+    <MemberRechargeWithdrawDrawer />
     <ParentMemberDrawer />
     <MemberInventoryDrawer />
   </Page>

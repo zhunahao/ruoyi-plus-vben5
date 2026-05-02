@@ -4,11 +4,16 @@ import type {
   MemberInfo,
   MemberLevelListResponse,
   MemberListParams,
+  RechargeMemberRequest,
+  RechargeMemberResponse,
+  RechargeRecord,
+  WithdrawRechargeRequest,
+  WithdrawRechargeResponse,
   SaveMemberRequest,
   SaveMemberResponse,
 } from './model';
 
-import type { ID, IDS, PageQuery, PageResult } from '#/api/common';
+import type { PageResult } from '#/api/common';
 
 import { alovaInstance } from '#/utils/http';
 
@@ -93,6 +98,38 @@ export const memberApi = {
       {
         params,
       },
+    );
+  },
+
+  /**
+   * 获取会员充值记录
+   */
+  getMemberRechargeRecords(params: MemberListParams) {
+    return alovaInstance.get<PageResult<RechargeRecord>>(
+      '/quxia-customer-service/finance/balance/getRechargeRecords',
+      {
+        params,
+      },
+    );
+  },
+
+  /**
+   * 会员充值
+   */
+  rechargeMember(data: RechargeMemberRequest) {
+    return alovaInstance.post<RechargeMemberResponse>(
+      '/quxia-customer-service/finance/balance/addBalanceForUser',
+      data,
+    );
+  },
+
+  /**
+   * 撤回充值记录
+   */
+  withdrawRecharge(data: WithdrawRechargeRequest) {
+    return alovaInstance.post<WithdrawRechargeResponse>(
+      '/quxia-customer-service/finance/balance/revokeAddBalance',
+      data,
     );
   },
 };
