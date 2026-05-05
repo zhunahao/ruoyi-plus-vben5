@@ -50,6 +50,7 @@ const gridOptions: VxeGridProps = {
         const params: OrderListQuery = {
           pageNum: page.currentPage,
           pageSize: page.pageSize,
+          type: 'pick',
           ...formValues,
         };
         return await orderPickApi.getOrderList(params);
@@ -81,6 +82,18 @@ function handleSetShip(row: OrderInfo) {
   shipModalApi.setData({ orderId: row.id, orderNo: row.orderNo });
   shipModalApi.open();
 }
+
+function copyRecipient(row: OrderInfo) {
+  const text = `姓名：${row.recipientName}\n电话：${row.recipientPhone}\n地址：${row.recipientAddress}`;
+  navigator.clipboard.writeText(text);
+  window.message.success('收货信息已复制到剪贴板');
+}
+
+function copyItems(row: OrderInfo) {
+  const text = row.items.map((item) => `${item.productName} x ${item.quantity}`).join('\n');
+  navigator.clipboard.writeText(text);
+  window.message.success('商品信息已复制到剪贴板');
+}
 </script>
 
 <template>
@@ -93,15 +106,24 @@ function handleSetShip(row: OrderInfo) {
           </a-button> -->
         </Space>
       </template>
+      <template #recipient-cell="{ row }">
+        <div class="custom-cell" style="font-weight: bold" @click="copyRecipient(row)">
+          <span style="font-size: 12px; color: gray">姓名：{{ row.recipientName }}</span><br />
+          <span style="font-size: 12px; color: gray">电话：{{ row.recipientPhone }}</span><br />
+          <span style="font-size: 12px; color: gray">地址：{{ row.recipientAddress }}</span>
+        </div>
+      </template>
+      <template #item-cell="{ row }">
+        <div class="custom-cell" style="font-weight: bold" @click="copyItems(row)">
+          <span style="font-size: 12px; color: gray" v-for="item in row.items" :key="item.id + item.applyId">
+            {{ item.productName }} x {{ item.quantity }}<br />
+          </span><br />
+        </div>
+      </template>
       <template #status-cell="{ row }">
         <div class="custom-cell" style="font-weight: bold">
-          <span style="font-size: 12px; color: gray">{{ row.statusText }}</span
-          ><br />
-          <span
-            style="font-size: 12px; color: gray"
-            :style="{ color: row.paymentStatus === 'paid' ? 'green' : 'red' }"
-            >{{ row.paymentStatusText }}</span
-          >
+          <span style="font-size: 12px; color: gray" :style="{ color: row.status === 'shipped' ? 'green' : 'red' }">{{
+            row.statusText }}</span>
         </div>
       </template>
       <template #action="{ row }">
