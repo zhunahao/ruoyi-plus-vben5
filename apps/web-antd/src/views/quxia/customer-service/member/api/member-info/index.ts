@@ -11,6 +11,11 @@ import type {
   WithdrawRechargeResponse,
   SaveMemberRequest,
   SaveMemberResponse,
+  AddMemberInventoryRequest,
+  AddMemberInventoryResponse,
+  AddMemberInventoryBatchRequest,
+  AddMemberInventoryBatchResponse,
+  InventoryProductListResponse,
 } from './model';
 
 import type { PageResult } from '#/api/common';
@@ -93,7 +98,7 @@ export const memberApi = {
    * 获取会员库存列表
    */
   getMemberInventoryList(params: MemberListParams) {
-    return alovaInstance.get<MemberLevelListResponse>(
+    return alovaInstance.get<InventoryProductListResponse>(
       '/quxia-customer-service/inventory/products',
       {
         params,
@@ -102,8 +107,25 @@ export const memberApi = {
   },
 
   /**
-   * 获取会员充值记录
+   * 补充会员库存
    */
+  replenishInventory(data: AddMemberInventoryRequest) {
+    return alovaInstance.post<AddMemberInventoryResponse>(
+      '/quxia-customer-service/inventory/add',
+      data,
+    );
+  },
+
+  /**
+   * 批量补充会员库存
+   */
+  replenishInventoryBatch(data: AddMemberInventoryBatchRequest) {
+    return alovaInstance.post<AddMemberInventoryBatchResponse>(
+      '/quxia-customer-service/inventory/createReplenishApplyAndComplete',
+      data,
+    );
+  },
+
   getMemberRechargeRecords(params: MemberListParams) {
     return alovaInstance.get<PageResult<RechargeRecord>>(
       '/quxia-customer-service/finance/balance/getRechargeRecords',

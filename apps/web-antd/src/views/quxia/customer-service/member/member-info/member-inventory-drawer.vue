@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { nextTick, ref } from 'vue';
 
-import { useVbenDrawer } from '@vben/common-ui';
+import type { VxeGridProps } from '#/adapter/vxe-table';
+
+import { Page, useVbenDrawer, useVbenModal } from '@vben/common-ui';
+import { Space } from 'antdv-next';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 
 import { memberApi } from '../api/member-info';
+import memberInventoryReplenishModal from './member-inventory-replenish-modal.vue';
 
 // 存储当前用户ID
 const currentUserId = ref<string>('');
@@ -21,7 +25,7 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
     const { userId } = drawerApi.getData() as { userId?: number | string };
     if (userId) {
       currentUserId.value = userId.toString();
-      // 调用获取会员库存列表的接口
+      await nextTick();
       await tableApi.query({
         userId: currentUserId.value,
       });
@@ -31,7 +35,11 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
   },
 });
 
-const gridOptions = {
+const [MemberInventoryReplenishModal, replenishModalApi] = useVbenModal({
+  connectedComponent: memberInventoryReplenishModal,
+});
+
+const gridOptions: VxeGridProps = {
   columns: [
     {
       field: 'productName',
@@ -70,10 +78,28 @@ const gridOptions = {
 const [BasicTable, tableApi] = useVbenVxeGrid({
   gridOptions,
 });
+
+function handleReplenishInventory() {
+  replenishModalApi.setData({
+    userId: currentUserId.value,
+  });
+  replenishModalApi.open();
+}
 </script>
 
 <template>
   <BasicDrawer title="会员库存" placement="right" class="w-[600px]">
-    <BasicTable table-title="库存列表" />
+    <Page :auto-content-height="true">
+      <BasicTable table-title="库存列表">
+        <template #toolbar-tools>
+          <Space>
+            <a-button type="primary" @click="handleReplenishInventory">
+              补充库存
+            </a-button>
+          </Space>
+        </template>
+      </BasicTable>
+      <MemberInventoryReplenishModal @reload="tableApi.query()" />
+    </Page>
   </BasicDrawer>
 </template>

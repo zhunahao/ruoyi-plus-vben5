@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-
+import type { VxeGridProps } from '#/adapter/vxe-table';
 import { useVbenDrawer } from '@vben/common-ui';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
@@ -31,7 +31,7 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
   },
 });
 
-const gridOptions = {
+const gridOptions: VxeGridProps = {
   columns: [
     {
       field: 'name',

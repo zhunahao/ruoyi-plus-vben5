@@ -17,7 +17,6 @@ export interface MemberInfo {
   recommendMemberCode?: string;
   createTime: string;
   status: number; // 0: 禁用, 1: 启用
-  amount?: number; // 充值金额，非接口返回字段，仅用于前端显示和操作
 }
 
 // 会员列表请求参数
@@ -33,6 +32,7 @@ export interface MemberListParams {
 // 会员详情响应
 export interface MemberDetailResponse {
   data: MemberInfo;
+  amount?: number; // 充值金额，非接口返回字段，仅用于前端显示和操作
 }
 
 // 保存会员请求
@@ -93,6 +93,46 @@ export interface RechargeMemberResponse {
   message: string;
 }
 
+// 补充库存请求
+export interface AddMemberInventoryRequest {
+  userId: string;
+  productName: string;
+  quantity: number;
+  remark?: string;
+  productId?: string;
+  productPrice?: number;
+}
+
+// 补充库存响应
+export interface AddMemberInventoryResponse {
+  success: boolean;
+  message: string;
+}
+
+// 批量补充库存商品项
+export interface AddMemberInventoryBatchItem {
+  productName: string;
+  productId?: string;
+  quantity: number;
+  price?: number;
+  subtotal?: number;
+}
+
+// 批量补充库存请求
+export interface AddMemberInventoryBatchRequest {
+  userId: string;
+  items: AddMemberInventoryBatchItem[];
+  paymentInfo?: string;
+  totalAmount?: number;
+  actualAmount?: number;
+}
+
+// 批量补充库存响应
+export interface AddMemberInventoryBatchResponse {
+  success: boolean;
+  message: string;
+}
+
 // 删除会员响应
 export interface DeleteMemberResponse {
   success: boolean;
@@ -117,4 +157,17 @@ export interface MemberLevelOption {
 // 会员等级列表响应
 export interface MemberLevelListResponse {
   items: MemberLevelOption[];
+}
+
+// 库存商品项
+export interface InventoryProduct {
+  productId: string;
+  productName: string;
+  price: number;
+  stock?: number;
+}
+
+// 库存商品列表响应
+export interface InventoryProductListResponse {
+  items: InventoryProduct[];
 }
