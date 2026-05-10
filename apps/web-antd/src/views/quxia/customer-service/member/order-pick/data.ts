@@ -63,17 +63,17 @@ export const columns: VxeGridProps['columns'] = [
     minWidth: 150,
   },
   {
-    field: 'shipTime',
+    field: 'shippingTime',
     title: '发货时间',
     minWidth: 150,
   },
   {
-    field: 'logisticsCompany',
+    field: 'shippingCompany',
     title: '物流公司',
     minWidth: 120,
   },
   {
-    field: 'logisticsNo',
+    field: 'trackingNumber',
     title: '物流单号',
     minWidth: 180,
   },

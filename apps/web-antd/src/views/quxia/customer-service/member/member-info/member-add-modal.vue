@@ -34,7 +34,7 @@ const [BasicForm, formApi] = useVbenForm({
       fieldName: 'phone',
       label: '手机号',
       component: 'Input',
-      rules: z.string().regex(/^1[3-9]\d{9}$/, '请输入正确的电话'),
+      // rules: z.string().regex(/^1[3-9]\d{9}$/, '请输入正确的电话'),
     },
     {
       fieldName: 'password',
@@ -47,6 +47,11 @@ const [BasicForm, formApi] = useVbenForm({
       label: '确认密码',
       component: 'InputPassword',
       rules: 'required',
+    },
+    {
+      fieldName: 'recommendMemberCode',
+      label: '推荐码',
+      component: 'Input',
     },
     {
       fieldName: 'levelId',
@@ -104,6 +109,10 @@ async function handleConfirm() {
       return;
     }
     const data:any = cloneDeep(await formApi.getValues());
+    if (data.password !== data.confirmPassword) {
+      ;(formApi as any).setErrors({ confirmPassword: '密码不一致' });
+      return;
+    }
     delete data.confirmPassword;
     await memberApi.saveMember(data);
     emit('reload');

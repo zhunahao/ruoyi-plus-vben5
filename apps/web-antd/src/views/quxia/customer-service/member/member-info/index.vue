@@ -17,6 +17,7 @@ import memberEditModal from './member-edit-modal.vue';
 import memberRechargeModal from './member-recharge-modal.vue';
 import memberRechargeWithdrawDrawer from './member-recharge-withdraw-drawer.vue';
 import memberInventoryDrawer from './member-inventory-drawer.vue';
+import memberInventoryAdjustDrawer from './member-inventory-adjust-drawer.vue';
 import parentMemberDrawer from './parent-member-drawer.vue';
 
 const [MemberAddModal, addModalApi] = useVbenModal({
@@ -41,6 +42,10 @@ const [ParentMemberDrawer, parentDrawerApi] = useVbenDrawer({
 
 const [MemberInventoryDrawer, inventoryDrawerApi] = useVbenDrawer({
   connectedComponent: memberInventoryDrawer,
+});
+
+const [MemberInventoryAdjustDrawer, inventoryAdjustDrawerApi] = useVbenDrawer({
+  connectedComponent: memberInventoryAdjustDrawer,
 });
 
 const formOptions: VbenFormProps = {
@@ -97,6 +102,15 @@ function handleAdd() {
   addModalApi.open();
 }
 
+function handleInventoryAdjust(row: Recordable<number>) {
+  inventoryAdjustDrawerApi.setData({
+    userId: row.userId,
+    memberName: row.name,
+    memberCode: row.memberCode,
+  });
+  inventoryAdjustDrawerApi.open();
+}
+
 async function handleEdit(row: Recordable<number>) {
   editModalApi.setData({ id: row.id });
   editModalApi.open();
@@ -125,45 +139,35 @@ function handleViewInventory(row: Recordable<number>) {
 
 <template>
   <Page :auto-content-height="true">
-    <BasicTable>
+    <BasicTable table-title="会员列表">
       <template #toolbar-actions>
-        <span class="ml-[20px] pl-[7px] text-[16px]">会员列表</span>
         <span class="ml-[20px]">会员总余额：<span>待确认</span></span>
         <span class="ml-[20px]">会员总收益：<span>待确认</span></span>
       </template>
       <template #toolbar-tools>
         <Space>
           <a-button type="primary" @click="handleAdd"> 新增 </a-button>
+          <a-button type="default" @click="handleInventoryAdjust"> 库存管理 </a-button>
         </Space>
       </template>
       <template #name-cell="{ row }">
         <div class="custom-cell" style="font-weight: bold">
           {{ row.name }}<br />
-          <span style="font-size: 12px; color: gray"
-            >手机号：{{ row.phone }}</span
-          ><br />
-          <span style="font-size: 12px; color: gray"
-            >会员编号：{{ row.memberCode }}</span
-          >
+          <span style="font-size: 12px; color: gray">手机号：{{ row.phone }}</span><br />
+          <span style="font-size: 12px; color: gray">会员编号：{{ row.memberCode }}</span>
         </div>
       </template>
       <template #balance-cell="{ row }">
         <div class="custom-cell" style="font-weight: bold">
           余额：{{ row.balance }}<br />
-          <span style="font-size: 12px; color: gray"
-            >收益：{{ row.settledEarnings }}</span
-          >
+          <span style="font-size: 12px; color: gray">收益：{{ row.settledEarnings }}</span>
         </div>
       </template>
       <template #recommendMember-cell="{ row }">
         <div class="custom-cell" style="font-weight: bold">
           推荐人：{{ row.recommendMemberName }}<br />
-          <span style="font-size: 12px; color: gray"
-            >推荐人手机号：{{ row.recommendMemberPhone }}</span
-          ><br />
-          <span style="font-size: 12px; color: gray"
-            >推荐人编号：{{ row.recommendMemberCode }}</span
-          >
+          <span style="font-size: 12px; color: gray">推荐人手机号：{{ row.recommendMemberPhone }}</span><br />
+          <span style="font-size: 12px; color: gray">推荐人编号：{{ row.recommendMemberCode }}</span>
         </div>
       </template>
       <template #action="{ row }">
@@ -180,11 +184,7 @@ function handleViewInventory(row: Recordable<number>) {
             <action-button size="small" danger @click.stop="handleEdit(row)">
               编辑
             </action-button>
-            <action-button
-              size="small"
-              danger
-              @click.stop="handleViewInventory(row)"
-            >
+            <action-button size="small" danger @click.stop="handleViewInventory(row)">
               会员库存
             </action-button>
           </Space>
@@ -202,5 +202,6 @@ function handleViewInventory(row: Recordable<number>) {
     <MemberRechargeWithdrawDrawer />
     <ParentMemberDrawer />
     <MemberInventoryDrawer />
+    <MemberInventoryAdjustDrawer />
   </Page>
 </template>

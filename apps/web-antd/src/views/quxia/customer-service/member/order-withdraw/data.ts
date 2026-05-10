@@ -39,14 +39,14 @@ export const columns: VxeGridProps['columns'] = [
     title: '订单编号',
     minWidth: 180,
   },
-  {
-    field: 'userName',
-    title: '用户',
-    minWidth: 100,
-    formatter({ row }) {
-      return `${row.userName}<br/>${row.phone}`;
-    },
-  },
+  // {
+  //   field: 'userName',
+  //   title: '用户',
+  //   minWidth: 100,
+  //   formatter({ row }) {
+  //     return `${row.userName}<br/>${row.phone}`;
+  //   },
+  // },
   {
     field: 'amount',
     title: '提现金额',
@@ -61,11 +61,11 @@ export const columns: VxeGridProps['columns'] = [
     minWidth: 150,
     slots: { default: 'withdraw-cell' },
   },
-  {
-    field: 'accountTypeName',
-    title: '账号类型',
-    minWidth: 100,
-  },
+  // {
+  //   field: 'accountTypeName',
+  //   title: '账号类型',
+  //   minWidth: 100,
+  // },
   {
     field: 'statusText',
     title: '订单状态',

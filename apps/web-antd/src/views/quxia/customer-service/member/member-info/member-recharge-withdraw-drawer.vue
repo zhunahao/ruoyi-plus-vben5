@@ -1,14 +1,22 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import { Space } from 'antdv-next';
 import type { VxeGridProps } from '#/adapter/vxe-table';
-import { useVbenDrawer } from '@vben/common-ui';
+import { useVbenDrawer, useVbenModal } from '@vben/common-ui';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 
 import { memberApi } from '../api/member-info';
+import memberReduceModal from './member-reduce-modal.vue';
 
+const currentMemberId = ref<number>(0);
 const currentUserId = ref<string>('');
 const currentMemberCode = ref<string>('');
 const currentMemberName = ref<string>('');
+const currentBalance = ref<string>('');
+
+const [MemberReduceModal, reduceModalApi] = useVbenModal({
+  connectedComponent: memberReduceModal,
+});
 
 const [BasicDrawer, drawerApi] = useVbenDrawer({
   footer: false,
@@ -23,9 +31,11 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
       const member = await memberApi.getMemberDetail(id.toString());
       currentMemberCode.value = (member as any).memberCode ?? '';
       currentMemberName.value = (member as any).name ?? '';
+      currentBalance.value = (member as any).balance ?? '';
       currentUserId.value = (member as any).userId?.toString() ?? '';
+      currentMemberId.value = (member as any).id ?? 0;
       await tableApi.query({
-        userId: currentUserId.value,
+        userId: currentMemberId.value,
       });
     }
 
@@ -56,11 +66,10 @@ const gridOptions: VxeGridProps = {
     //     minWidth: 120,
     // },
     {
-      field: 'curStatus',
+      field: 'curStatusText',
       title: '状态',
       minWidth: 100,
-      formatter: ({ cellValue }: { cellValue: string }) =>
-        cellValue === "1" ? '已充值' : cellValue === "0" ? '已撤回' : '未知',
+      slots: { default: 'status-cell' },
     },
     {
       field: 'remark',
@@ -129,26 +138,37 @@ async function handleWithdraw(id: string) {
     },
   });
 }
+
+async function handlePartialWithdraw() {
+  reduceModalApi.setData({ id: currentMemberId.value });
+  reduceModalApi.open();
+}
 </script>
 
 <template>
   <BasicDrawer title="充值撤回" placement="right" class="w-[900px] h-full">
-    <div class="flex h-full flex-col space-y-4">
-      <div class="flex flex-wrap items-center justify-between gap-4">
-        <div class="space-y-1">
-          <div class="text-sm text-gray-600">会员编号：{{ currentMemberCode }}</div>
-          <div class="text-sm text-gray-600">会员名称：{{ currentMemberName }}</div>
+    <BasicTable table-title="充值记录">
+      <template #toolbar-actions>
+        <Space>
+          <span class="mr-[20px]">{{ currentMemberName }}（{{ currentMemberCode }}）余额：{{ currentBalance }}元</span>
+        </Space>
+      </template>
+      <template #toolbar-tools>
+        <Space>
+          <a-button @click="handlePartialWithdraw">部分撤回</a-button>
+        </Space>
+      </template>
+      <template #withdraw="{ row }">
+        <a-button v-if="row.curStatus === '1' && row.type === 'recharge'" type="link" danger @click="handleWithdraw(row.id)">整单撤回</a-button>
+      </template>
+      <template #status-cell="{ row }">
+        <div class="custom-cell" style="font-weight: bold">
+          {{ row.typeText }}({{ row.curStatusText }})
         </div>
-      </div>
-      <div class="flex-1 min-h-0">
-        <BasicTable table-title="充值记录">
-          <template #withdraw="{ row }">
-            <a-button v-if="row.curStatus === '1'" type="link" danger @click="handleWithdraw(row.id)">撤回</a-button>
-          </template>
-        </BasicTable>
-      </div>
-    </div>
+      </template>
+    </BasicTable>
   </BasicDrawer>
+  <MemberReduceModal @reload="tableApi.query()" />
 </template>
 
 <style scoped></style>

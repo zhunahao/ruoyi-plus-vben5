@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { nextTick, ref } from 'vue';
-
+import type { Recordable } from '@vben/types';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
 import { Page, useVbenDrawer, useVbenModal } from '@vben/common-ui';
@@ -10,6 +10,8 @@ import { useVbenVxeGrid } from '#/adapter/vxe-table';
 
 import { memberApi } from '../api/member-info';
 import memberInventoryReplenishModal from './member-inventory-replenish-modal.vue';
+import inventoryAdjustModal from '../inventory-adjust/inventory-adjust-modal.vue';
+
 
 // 存储当前用户ID
 const currentUserId = ref<string>('');
@@ -39,6 +41,11 @@ const [MemberInventoryReplenishModal, replenishModalApi] = useVbenModal({
   connectedComponent: memberInventoryReplenishModal,
 });
 
+const [InventoryAdjustModal, adjustModalApi] = useVbenModal({
+  connectedComponent: inventoryAdjustModal,
+});
+
+
 const gridOptions: VxeGridProps = {
   columns: [
     {
@@ -50,6 +57,14 @@ const gridOptions: VxeGridProps = {
       field: 'userInventory',
       title: '数量',
       minWidth: 100,
+    },
+    {
+      field: 'action',
+      fixed: 'right',
+      slots: { default: 'action' },
+      title: '操作',
+      resizable: false,
+      width: 'auto',
     },
   ],
   height: 'auto',
@@ -85,21 +100,50 @@ function handleReplenishInventory() {
   });
   replenishModalApi.open();
 }
+
+function handleAdd(row: Recordable<number>) {
+  adjustModalApi.setData({
+    userId: currentUserId.value,
+    product: row,
+    type: 'add',
+  });
+  adjustModalApi.open();
+}
+
+function handleReduce(row: Recordable<number>) {
+  adjustModalApi.setData({
+    userId: currentUserId.value,
+    product: row,
+    type: 'reduce',
+  });
+  adjustModalApi.open();
+}
 </script>
 
 <template>
   <BasicDrawer title="会员库存" placement="right" class="w-[600px]">
     <Page :auto-content-height="true">
       <BasicTable table-title="库存列表">
-        <template #toolbar-tools>
+        <!-- <template #toolbar-tools>
           <Space>
             <a-button type="primary" @click="handleReplenishInventory">
               补充库存
             </a-button>
           </Space>
+        </template> -->
+        <template #action="{ row }">
+          <Space>
+            <action-button size="small" @click.stop="handleAdd(row)">
+              增加库存
+            </action-button>
+            <action-button size="small" @click.stop="handleReduce(row)">
+              减少库存
+            </action-button>
+          </Space>
         </template>
       </BasicTable>
       <MemberInventoryReplenishModal @reload="tableApi.query()" />
+      <InventoryAdjustModal @reload="tableApi.query()" />
     </Page>
   </BasicDrawer>
 </template>

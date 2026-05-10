@@ -50,15 +50,15 @@ const [BasicForm, formApi] = useVbenForm({
     },
     {
       fieldName: 'amount',
-      label: '充值金额',
+      label: '撤回金额',
       component: 'InputNumber',
       componentProps: {
         min: 0.01,
         step: 0.01,
         precision: 2,
-        placeholder: '请输入充值金额',
+        placeholder: '请输入撤回金额',
       },
-      rules: z.number().gt(0, '请输入大于0的充值金额'),
+      rules: z.number().gt(0, '请输入大于0的撤回金额'),
     },
   ],
   showDefaultActions: false,
@@ -97,11 +97,11 @@ async function handleConfirm() {
       userId?: number;
       amount?: number;
     };
-    console.log('充值数据:', data);
+    console.log('撤回数据:', data);
     if (!data.userId || !data.amount) {
       return;
     }
-    await memberApi.rechargeMember({ userId: data.userId, amount: data.amount });
+    await memberApi.reduceMember({ userId: data.userId, amount: data.amount });
     emit('reload');
     await handleCancel();
   } catch (error) {
@@ -118,7 +118,7 @@ async function handleCancel() {
 </script>
 
 <template>
-  <BasicModal :close-on-click-modal="false" title="会员充值" class="w-[550px]">
+  <BasicModal :close-on-click-modal="false" title="会员充值部分撤回" class="w-[550px]">
     <BasicForm />
   </BasicModal>
 </template>

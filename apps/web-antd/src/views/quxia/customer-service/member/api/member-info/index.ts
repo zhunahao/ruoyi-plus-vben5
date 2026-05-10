@@ -15,6 +15,8 @@ import type {
   AddMemberInventoryResponse,
   AddMemberInventoryBatchRequest,
   AddMemberInventoryBatchResponse,
+  AdjustMemberInventoryRequest,
+  AdjustMemberInventoryResponse,
   InventoryProductListResponse,
 } from './model';
 
@@ -117,6 +119,25 @@ export const memberApi = {
   },
 
   /**
+   * 增加会员库存
+   */
+  addInventory(data: AdjustMemberInventoryRequest) {
+    return alovaInstance.post<AdjustMemberInventoryResponse>(
+      '/quxia-customer-service/inventory/addInventory',
+      data,
+    );
+  },
+  /**
+   * 减少会员库存
+   */
+  reduceInventory(data: AdjustMemberInventoryRequest) {
+    return alovaInstance.post<AdjustMemberInventoryResponse>(
+      '/quxia-customer-service/inventory/reduceInventory',
+      data,
+    );
+  },
+
+  /**
    * 批量补充会员库存
    */
   replenishInventoryBatch(data: AddMemberInventoryBatchRequest) {
@@ -151,6 +172,13 @@ export const memberApi = {
   withdrawRecharge(data: WithdrawRechargeRequest) {
     return alovaInstance.post<WithdrawRechargeResponse>(
       '/quxia-customer-service/finance/balance/revokeAddBalance',
+      data,
+    );
+  },
+
+  reduceMember(data: RechargeMemberRequest) {
+    return alovaInstance.post<RechargeMemberResponse>(
+      '/quxia-customer-service/finance/balance/reduceBalanceForUser',
       data,
     );
   },

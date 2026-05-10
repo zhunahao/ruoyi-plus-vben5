@@ -109,6 +109,25 @@ export interface AddMemberInventoryResponse {
   message: string;
 }
 
+// 会员库存调整请求
+export interface AdjustMemberInventoryRequest {
+  userId: string;
+  items: AdjustMemberInventoryProductRequest[];
+  remark?: string;
+}
+
+export interface AdjustMemberInventoryProductRequest {
+  productId: string;
+  productName: string;
+  quantity: number;
+}
+
+// 会员库存调整响应
+export interface AdjustMemberInventoryResponse {
+  success: boolean;
+  message: string;
+}
+
 // 批量补充库存商品项
 export interface AddMemberInventoryBatchItem {
   productName: string;
@@ -165,6 +184,8 @@ export interface InventoryProduct {
   productName: string;
   price: number;
   stock?: number;
+  userInventory?: number;
+  userId?: string;
 }
 
 // 库存商品列表响应
