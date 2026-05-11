@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import type { VbenFormProps } from '@vben/common-ui';
 import type { Recordable } from '@vben/types';
-
 import type { VxeGridProps } from '#/adapter/vxe-table';
+import type { MemberFinanceResponse } from '../api/member-info/model';
 
 import { Page, useVbenDrawer, useVbenModal } from '@vben/common-ui';
+import { ref } from 'vue';
 
-import { Space } from 'antdv-next';
+import { Space, Statistic } from 'antdv-next';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 
@@ -46,6 +47,25 @@ const [MemberInventoryDrawer, inventoryDrawerApi] = useVbenDrawer({
 
 const [MemberInventoryAdjustDrawer, inventoryAdjustDrawerApi] = useVbenDrawer({
   connectedComponent: memberInventoryAdjustDrawer,
+});
+
+const memberFinance = ref<MemberFinanceResponse>({
+  totalBalance: 0,
+  totalSettledEarnings: 0,
+  inventorySums: [],
+});
+
+// 金额格式化函数：千分符 + 保留两位小数 + 人民币符号
+const formatMoney = (value: number | string): string => {
+  const num = Number(value) || 0;
+  return `¥${num.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+};
+
+memberApi.getFinanceSum().then((res) => {
+  memberFinance.value = res;
+  console.log('会员总余额和总收益：', res);
+}).catch((error) => {
+  console.error('获取会员总余额和总收益失败：', error);
 });
 
 const formOptions: VbenFormProps = {
@@ -141,13 +161,21 @@ function handleViewInventory(row: Recordable<number>) {
   <Page :auto-content-height="true">
     <BasicTable table-title="会员列表">
       <template #toolbar-actions>
-        <span class="ml-[20px]">会员总余额：<span>待确认</span></span>
-        <span class="ml-[20px]">会员总收益：<span>待确认</span></span>
+        <Space class="ml-[40px]">
+          <Statistic title="总余额(元)" :value="memberFinance.totalBalance" />
+        </Space>
+        <Space class="ml-[40px]">
+          <Statistic title="总收益(元)" :value="memberFinance.totalSettledEarnings" />
+        </Space>
+        <Space class="ml-[40px]" direction="vertical">
+          <span>总库存：</span>
+          <span v-for="item in memberFinance.inventorySums" :key="item.productName">{{ item.productName }}：{{
+            item.totalQuantity }}</span>
+        </Space>
       </template>
       <template #toolbar-tools>
         <Space>
-          <a-button type="primary" @click="handleAdd"> 新增 </a-button>
-          <a-button type="default" @click="handleInventoryAdjust"> 库存管理 </a-button>
+          <a-button type="primary" @click="handleAdd">新增</a-button>
         </Space>
       </template>
       <template #name-cell="{ row }">

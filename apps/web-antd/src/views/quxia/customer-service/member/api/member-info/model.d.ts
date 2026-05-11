@@ -1,3 +1,5 @@
+import type { n } from "vue-router/dist/index-ZwgQvn2r.js";
+
 // 会员类型定义
 export interface MemberInfo {
   id: number;
@@ -191,4 +193,17 @@ export interface InventoryProduct {
 // 库存商品列表响应
 export interface InventoryProductListResponse {
   items: InventoryProduct[];
+}
+
+// 会员财务统计响应
+export interface MemberFinanceResponse {
+  totalBalance: number;
+  totalSettledEarnings: number;
+  inventorySums: InventorySumResponse[];
+}
+
+export interface InventorySumResponse {
+  productId: number;
+  productName: string;
+  totalQuantity: number;
 }

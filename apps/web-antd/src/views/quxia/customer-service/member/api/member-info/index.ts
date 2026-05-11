@@ -18,6 +18,7 @@ import type {
   AdjustMemberInventoryRequest,
   AdjustMemberInventoryResponse,
   InventoryProductListResponse,
+  MemberFinanceResponse
 } from './model';
 
 import type { PageResult } from '#/api/common';
@@ -180,6 +181,12 @@ export const memberApi = {
     return alovaInstance.post<RechargeMemberResponse>(
       '/quxia-customer-service/finance/balance/reduceBalanceForUser',
       data,
+    );
+  },
+
+  getFinanceSum() {
+    return alovaInstance.get<MemberFinanceResponse>(
+      '/quxia-customer-service/member/info/getFinanceSum',
     );
   },
 };
