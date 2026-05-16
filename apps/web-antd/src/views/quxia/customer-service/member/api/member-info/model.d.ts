@@ -25,6 +25,8 @@ export interface MemberInfo {
 export interface MemberListParams {
   pageNum: number;
   pageSize: number;
+  name?: string;
+  phone?: string;
   memberCode?: string;
   recommendMemberCode?: string;
   userId?: string;

@@ -110,7 +110,7 @@ const formSchema = computed((): VbenFormSchema[] => {
         placeholder: $t('authentication.usernameTip'),
         allowClear: true,
       },
-      // defaultValue: 'admin',
+      defaultValue: import.meta.env.DEV ? 'admin' : '',
       fieldName: 'username',
       label: $t('authentication.username'),
       rules: z.string().min(1, { message: $t('authentication.usernameTip') }),
@@ -122,7 +122,7 @@ const formSchema = computed((): VbenFormSchema[] => {
         size: 'large',
         placeholder: $t('authentication.passwordTip'),
       },
-      // defaultValue: 'admin123',
+      defaultValue: import.meta.env.DEV ? 'admin123' : '',
       fieldName: 'password',
       label: $t('authentication.password'),
       rules: z.string().min(5, { message: $t('authentication.passwordTip') }),
@@ -172,14 +172,8 @@ async function handleAccountLogin(values: LoginAndRegisterParams) {
 </script>
 
 <template>
-  <AuthenticationLogin
-    ref="loginFormRef"
-    :form-schema="formSchema"
-    :loading="authStore.loginLoading"
-    :show-register="false"
-    :show-third-party-login="true"
-    @submit="handleAccountLogin"
-  >
+  <AuthenticationLogin ref="loginFormRef" :form-schema="formSchema" :loading="authStore.loginLoading"
+    :show-register="false" :show-third-party-login="false" @submit="handleAccountLogin">
     <!-- 可通过show-third-party-login控制是否显示第三方登录 -->
     <template #third-party-login>
       <OAuthLogin />
