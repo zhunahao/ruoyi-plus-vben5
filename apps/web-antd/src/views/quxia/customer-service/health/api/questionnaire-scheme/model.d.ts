@@ -15,9 +15,3 @@ export interface QuestionnaireScheme {
    */
   description: string;
 }
-
-// 咨询方案列表参数
-export interface QuestionnaireSchemeListParams {
-  pageNum: number;
-  pageSize: number;
-}

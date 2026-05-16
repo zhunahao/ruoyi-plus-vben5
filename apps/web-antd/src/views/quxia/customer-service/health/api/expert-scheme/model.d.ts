@@ -41,10 +41,3 @@ export interface StageItem {
   title: string;
   description: string;
 }
-
-// 健康方案列表参数
-export interface ExpertSchemeListParams {
-  pageNum: number;
-  pageSize: number;
-  schemeName: string;
-}

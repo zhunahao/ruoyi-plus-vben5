@@ -1,4 +1,4 @@
-import type { QuestionnaireScheme, QuestionnaireSchemeListParams } from './model';
+import type { QuestionnaireScheme } from './model';
 
 import type { ID, IDS, PageQuery, PageResult } from '#/api/common';
 
@@ -8,7 +8,7 @@ export const questionnaireSchemeApi = {
   /**
    * 获取咨询方案列表
    */
-  questionnaireSchemeList(params: QuestionnaireSchemeListParams) {
+  questionnaireSchemeList(params: PageQuery) {
     return alovaInstance.get<PageResult<QuestionnaireScheme>>(
       '/quxia-customer-service/health/questionnairescheme/list',
       {

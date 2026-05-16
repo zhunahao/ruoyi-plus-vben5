@@ -136,7 +136,7 @@ const addOption = () => {
 <template>
   <BasicDrawer :title="title" class="w-[600px]">
     <BasicForm>
-      <template #options="slotProps">
+      <template #options>
         <Space direction="vertical">
           <a-button @click="addOption">增加选项</a-button>
           <Form ref="formRef" :model="dynamicValidateForm">

@@ -1,4 +1,4 @@
-import type { QuestionnaireSchemeQuestion, QuestionnaireSchemeQuestionListParams } from './model';
+import type { QuestionnaireSchemeQuestion } from './model';
 
 import type { ID, IDS, PageQuery, PageResult } from '#/api/common';
 

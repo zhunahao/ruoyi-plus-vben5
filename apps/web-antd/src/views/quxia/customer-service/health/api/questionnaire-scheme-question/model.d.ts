@@ -34,11 +34,3 @@ export interface OptionItem {
   seq: string;
   label: string;
 }
-
-// 咨询方案列表参数
-export interface QuestionnaireSchemeQuestionListParams {
-  pageNum: number;
-  pageSize: number;
-  schemeId: number;
-  questionContent: string;
-}

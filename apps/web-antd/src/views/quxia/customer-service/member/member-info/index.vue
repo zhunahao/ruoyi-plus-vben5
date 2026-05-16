@@ -55,12 +55,6 @@ const memberFinance = ref<MemberFinanceResponse>({
   inventorySums: [],
 });
 
-// 金额格式化函数：千分符 + 保留两位小数 + 人民币符号
-const formatMoney = (value: number | string): string => {
-  const num = Number(value) || 0;
-  return `¥${num.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-};
-
 memberApi.getFinanceSum().then((res) => {
   memberFinance.value = res;
   console.log('会员总余额和总收益：', res);
