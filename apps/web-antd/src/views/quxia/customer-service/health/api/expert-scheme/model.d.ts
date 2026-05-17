@@ -34,6 +34,11 @@ export interface ExpertScheme {
    * 方案中多个阶级配置（JSON格式）
    */
   stages: StageItem[] | string;
+
+  /**
+   * 匹配规则（JSON格式）
+   */
+  matchRules: string;
 }
 
 export interface StageItem {

@@ -78,6 +78,11 @@ export const drawerSchema: FormSchemaGetter = () => [
     label: '注意事项',
   },
   {
+    component: 'Textarea',
+    fieldName: 'matchRules',
+    label: '匹配规则',
+  },
+  {
     component: 'Input',
     fieldName: 'stages',
     label: '阶段配置',

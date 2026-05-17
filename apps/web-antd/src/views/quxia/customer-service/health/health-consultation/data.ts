@@ -4,17 +4,17 @@ import type { VxeGridProps } from '#/adapter/vxe-table';
 export const querySchema: FormSchemaGetter = () => [
   {
     component: 'Input',
-    fieldName: 'schemeName',
+    fieldName: 'memberName',
     label: '会员姓名',
   },
   {
     component: 'Input',
-    fieldName: 'schemeName',
+    fieldName: 'name',
     label: '诉求人',
   },
   {
     component: 'Input',
-    fieldName: 'schemeName',
+    fieldName: 'expertName',
     label: '管理师',
   },
 ];
@@ -22,22 +22,22 @@ export const querySchema: FormSchemaGetter = () => [
 export const columns: VxeGridProps['columns'] = [
   { type: 'checkbox', width: 60 },
   {
-    field: 'schemeName',
+    field: 'memberName',
     title: '会员姓名',
     minWidth: 100,
   },
   {
-    field: 'schemeFeatures',
+    field: 'name',
     title: '诉求人',
     minWidth: 100,
   },
   {
-    field: 'schemeFeatures',
+    field: 'expertName',
     title: '管理师',
     minWidth: 100,
   },
   {
-    field: 'guidePrice',
+    field: 'expertSchemeName',
     title: '方案名称',
     minWidth: 100,
   },
@@ -51,14 +51,14 @@ export const columns: VxeGridProps['columns'] = [
     title: '创建时间',
     minWidth: 100,
   },
-  {
-    field: 'action',
-    fixed: 'right',
-    slots: { default: 'action' },
-    title: '操作',
-    resizable: false,
-    width: 'auto',
-  },
+  // {
+  //   field: 'action',
+  //   fixed: 'right',
+  //   slots: { default: 'action' },
+  //   title: '操作',
+  //   resizable: false,
+  //   width: 'auto',
+  // },
 ];
 
 export const modalSchema: FormSchemaGetter = () => [

@@ -89,10 +89,6 @@ async function handleConfirm() {
     }
     const data = cloneDeep(await formApi.getValues());
     data.options = JSON.stringify(dynamicValidateForm.options);
-    // 需要置空的情况 undefined不会提交给后端 需要改为空字符串
-    if (!data.listClass) {
-      data.listClass = '';
-    }
     await (isUpdate.value ? questionnaireSchemeQuestionApi.updateQuestionnaireSchemeQuestion(data) : questionnaireSchemeQuestionApi.addQuestionnaireSchemeQuestion(data));
     resetInitialized();
     emit('reload');

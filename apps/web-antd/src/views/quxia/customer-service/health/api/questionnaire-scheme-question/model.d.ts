@@ -28,6 +28,11 @@ export interface QuestionnaireSchemeQuestion {
    * 选项（JSON格式）
    */
   options: OptionItem[] | string;
+
+  /**
+   * 排序
+   */
+  sort: number;
 }
 
 export interface OptionItem {

@@ -28,6 +28,11 @@ export const columns: VxeGridProps['columns'] = [
     minWidth: 100
   },
   {
+    field: 'sort',
+    title: '排序',
+    minWidth: 100
+  },
+  {
     field: 'action',
     fixed: 'right',
     slots: { default: 'action' },
@@ -68,6 +73,12 @@ export const drawerSchema: FormSchemaGetter = () => [
       ],
     },
     defaultValue: 'radio',
+  },
+  {
+    component: 'InputNumber',
+    fieldName: 'sort',
+    label: '排序',
+    rules: 'required',
   },
   {
     component: 'Input',
