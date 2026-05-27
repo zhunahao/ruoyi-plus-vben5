@@ -51,6 +51,11 @@ export const columns: VxeGridProps['columns'] = [
     title: '创建时间',
     minWidth: 100,
   },
+  {
+    field: 'statusText',
+    title: '状态',
+    minWidth: 100,
+  },
   // {
   //   field: 'action',
   //   fixed: 'right',

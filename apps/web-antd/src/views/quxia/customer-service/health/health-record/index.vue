@@ -3,7 +3,7 @@ import type { VbenFormProps } from '@vben/common-ui';
 
 import type { VxeGridProps } from '#/adapter/vxe-table';
 import type { PageQuery } from '#/api/common';
-import type { Consultation } from '../api/health-consultation/model';
+import type { HealthRecord } from '../api/health-record/model';
 
 import { ref } from 'vue';
 
@@ -12,10 +12,9 @@ import { Page, useVbenDrawer } from '@vben/common-ui';
 import { Popconfirm, Space } from 'antdv-next';
 
 import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
-import { consultationApi } from '../api/health-consultation';
+import { healthRecordApi } from '../api/health-record';
 
 import { columns, querySchema } from './data';
-import consultationModal from './health-consultation-modal.vue';
 
 const formOptions: VbenFormProps = {
   commonConfig: {
@@ -50,7 +49,7 @@ const gridOptions: VxeGridProps = {
           ...formValues,
         };
 
-        return await consultationApi.consultationList(params);
+        return await healthRecordApi.healthRecordList(params);
       },
     },
   },
@@ -65,15 +64,11 @@ const [BasicTable, tableApi] = useVbenVxeGrid({
   gridOptions,
 });
 
-const [ConsultationModal, drawerApi] = useVbenDrawer({
-  connectedComponent: consultationModal,
-});
-
 </script>
 
 <template>
   <Page :auto-content-height="true">
-    <BasicTable table-title="咨询列表">
+    <BasicTable table-title="健康档案列表">
       <template #toolbar-tools>
         <Space>
         </Space>

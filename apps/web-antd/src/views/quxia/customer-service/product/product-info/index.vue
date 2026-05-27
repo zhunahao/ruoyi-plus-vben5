@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { VbenFormProps } from '@vben/common-ui';
 import type { VxeGridProps } from '#/adapter/vxe-table';
-import type { SysConfig } from '#/api/system/config/model';
+import type { ProductInfo } from '../api/product-info/model';
 import { Page, useVbenDrawer } from '@vben/common-ui';
 import { Popconfirm, Space, Avatar, Image } from 'antdv-next';
 import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
@@ -73,19 +73,19 @@ const [BasicTable, tableApi] = useVbenVxeGrid({
   gridOptions,
 });
 
-async function handleDelete(row: SysConfig) {
-  // await configRemove([row.configId]);
+async function handleDelete(row: ProductInfo) {
+  await productInfoApi.deleteProductInfo([row.id]);
   await tableApi.query();
 }
 
 function handleMultiDelete() {
   const rows = tableApi.grid.getCheckboxRecords();
-  const ids = rows.map((row: SysConfig) => row.configId);
+  const ids = rows.map((row: ProductInfo) => row.id);
   window.modal.confirm({
     title: '提示',
     okType: 'danger',
     content: `确认删除选中的${ids.length}条记录吗？`,
-    onOk: async () => {
+    onOk: async () => {console.log(ids);
       await productInfoApi.deleteProductInfo(ids);
       await tableApi.query();
     },

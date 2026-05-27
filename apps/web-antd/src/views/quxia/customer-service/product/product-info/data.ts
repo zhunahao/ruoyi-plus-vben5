@@ -118,6 +118,6 @@ export const drawerSchema: FormSchemaGetter = () => [
     component: 'ImageUpload',
     fieldName: 'mainImage',
     label: '主图',
-    rules: 'required',
+    // rules: 'required',
   }
 ];
