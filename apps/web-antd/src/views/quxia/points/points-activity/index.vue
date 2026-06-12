@@ -2,22 +2,22 @@
 import type { VbenFormProps } from '@vben/common-ui';
 import type { Recordable } from '@vben/types';
 
-import type { ProductInfo } from '../api/product-info/model';
+import type { PointsActivity } from '../api/points-activity/model';
 
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
 import { Page, useVbenDrawer } from '@vben/common-ui';
 
-import { Image, Popconfirm, Space } from 'antdv-next';
+import { Popconfirm, Space } from 'antdv-next';
 
 import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
 
-import { productInfoApi } from '../api/product-info';
+import { pointsActivityApi } from '../api/points-activity';
 import { columns, querySchema } from './data';
-import productInfoDrawer from './product-info-drawer.vue';
+import pointsActivityDrawer from './points-activity-drawer.vue';
 
-const [ProductInfoDrawer, productInfoDrawerApi] = useVbenDrawer({
-  connectedComponent: productInfoDrawer,
+const [PointsActivityDrawer, pointsActivityDrawerApi] = useVbenDrawer({
+  connectedComponent: pointsActivityDrawer,
 });
 
 const formOptions: VbenFormProps = {
@@ -53,7 +53,7 @@ const gridOptions: VxeGridProps = {
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues = {}) => {
-        return await productInfoApi.productInfoList({
+        return await pointsActivityApi.pointsActivityList({
           pageNum: page.currentPage,
           pageSize: page.pageSize,
           ...formValues,
@@ -67,7 +67,7 @@ const gridOptions: VxeGridProps = {
   cellConfig: {
     height: 60,
   },
-  id: 'weight-expert-index',
+  id: 'points-activity-index',
 };
 
 const [BasicTable, tableApi] = useVbenVxeGrid({
@@ -75,76 +75,93 @@ const [BasicTable, tableApi] = useVbenVxeGrid({
   gridOptions,
 });
 
-async function handleDelete(row: ProductInfo) {
-  await productInfoApi.deleteProductInfo([row.id]);
+async function handleDelete(row: PointsActivity) {
+  await pointsActivityApi.deletePointsActivity([row.id]);
   await tableApi.query();
 }
 
 function handleMultiDelete() {
   const rows = tableApi.grid.getCheckboxRecords();
-  const ids = rows.map((row: ProductInfo) => row.id);
+  const ids = rows.map((row: PointsActivity) => row.id);
   window.modal.confirm({
     title: '提示',
     okType: 'danger',
     content: `确认删除选中的${ids.length}条记录吗？`,
-    onOk: async () => {console.log(ids);
-      await productInfoApi.deleteProductInfo(ids);
+    onOk: async () => {
+      await pointsActivityApi.deletePointsActivity(ids);
       await tableApi.query();
     },
   });
 }
 
 function handleAdd() {
-  productInfoDrawerApi.setData({});
-  productInfoDrawerApi.open();
+  pointsActivityDrawerApi.setData({});
+  pointsActivityDrawerApi.open();
 }
 
 function handleEdit(row: Recordable<number>) {
-  productInfoDrawerApi.setData({ id: row.id });
-  productInfoDrawerApi.open();
+  pointsActivityDrawerApi.setData({ id: row.id });
+  pointsActivityDrawerApi.open();
 }
 </script>
 
 <template>
   <Page :auto-content-height="true">
-    <BasicTable table-title="管理师列表">
+    <BasicTable table-title="积分活动列表">
       <template #toolbar-tools>
         <Space>
           <a-button
-:disabled="!vxeCheckboxChecked(tableApi)" danger type="primary"
-            v-access:code="['system:config:remove']" @click="handleMultiDelete"
->
+            :disabled="!vxeCheckboxChecked(tableApi)"
+            danger
+            type="primary"
+            v-access:code="['system:config:remove']"
+            @click="handleMultiDelete"
+          >
             {{ $t('pages.common.delete') }}
           </a-button>
-          <a-button type="primary" v-access:code="['system:config:add']" @click="handleAdd">
+          <a-button
+            type="primary"
+            v-access:code="['system:config:add']"
+            @click="handleAdd"
+          >
             {{ $t('pages.common.add') }}
           </a-button>
         </Space>
       </template>
-      <template #main-image="{ row }">
-        <Space>
-          <Image :key="row.id" :src="row.mainImage" height="50px">
-            <template #placeholder>
-              <div class="flex size-full items-center justify-center">
-                <Spin />
-              </div>
-            </template>
-          </Image>
-        </Space>
+      <template #status="{ row }">
+        <a-tag :color="row.status === 1 ? 'green' : 'red'">
+          {{ row.status === 1 ? '启用' : '禁用' }}
+        </a-tag>
+      </template>
+      <template #isHot="{ row }">
+        <a-tag :color="row.isHot === 1 ? 'orange' : 'default'">
+          {{ row.isHot === 1 ? '是' : '否' }}
+        </a-tag>
       </template>
       <template #action="{ row }">
         <Space>
-          <action-button v-access:code="['system:config:edit']" @click.stop="handleEdit(row)">
+          <action-button
+            v-access:code="['system:config:edit']"
+            @click.stop="handleEdit(row)"
+          >
             {{ $t('pages.common.edit') }}
           </action-button>
-          <Popconfirm placement="left" title="确认删除？" @confirm="handleDelete(row)">
-            <action-button danger v-access:code="['system:config:remove']" @click.stop="">
+          <Popconfirm
+            placement="left"
+            title="确认删除？"
+            @confirm="handleDelete(row)"
+          >
+            <action-button
+              danger
+              v-access:code="['system:config:remove']"
+              @click.stop=""
+            >
               {{ $t('pages.common.delete') }}
             </action-button>
           </Popconfirm>
         </Space>
       </template>
     </BasicTable>
-    <ProductInfoDrawer @reload="tableApi.query" />
+    <PointsActivityDrawer @reload="tableApi.query" />
   </Page>
 </template>
