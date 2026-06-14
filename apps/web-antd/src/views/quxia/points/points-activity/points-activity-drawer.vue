@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { ID } from '#/api/common';
 
 import { computed, ref } from 'vue';
 
@@ -54,7 +55,7 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
     isUpdate.value = !!id;
     if (isUpdate.value) {
       // 更新 && 赋值
-      pointsActivityApi.pointsActivityInfo(Number(id)).then((res) => {
+      pointsActivityApi.pointsActivityInfo(id as ID).then((res) => {
         formApi.setValues(res);
       });
     }

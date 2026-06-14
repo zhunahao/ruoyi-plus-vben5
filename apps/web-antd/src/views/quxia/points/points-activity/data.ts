@@ -7,18 +7,18 @@ export const querySchema: FormSchemaGetter = () => [
     fieldName: 'title',
     label: '活动标题',
   },
-  {
-    component: 'Select',
-    fieldName: 'status',
-    label: '状态',
-    componentProps: {
-      allowClear: true,
-      options: [
-        { label: '启用', value: 1 },
-        { label: '禁用', value: 0 },
-      ],
-    },
-  },
+  // {
+  //   component: 'Select',
+  //   fieldName: 'status',
+  //   label: '状态',
+  //   componentProps: {
+  //     allowClear: true,
+  //     options: [
+  //       { label: '启用', value: 1 },
+  //       { label: '禁用', value: 0 },
+  //     ],
+  //   },
+  // },
 ];
 
 export const columns: VxeGridProps['columns'] = [
@@ -109,6 +109,7 @@ export const drawerSchema: FormSchemaGetter = () => [
     componentProps: {
       showTime: true,
       format: 'YYYY-MM-DD HH:mm:ss',
+      valueFormat: 'YYYY-MM-DD HH:mm:ss',
     },
   },
   {
@@ -119,6 +120,7 @@ export const drawerSchema: FormSchemaGetter = () => [
     componentProps: {
       showTime: true,
       format: 'YYYY-MM-DD HH:mm:ss',
+      valueFormat: 'YYYY-MM-DD HH:mm:ss',
     },
   },
   {
@@ -127,26 +129,25 @@ export const drawerSchema: FormSchemaGetter = () => [
     label: '页面地址',
   },
   {
-    component: 'InputNumber',
-    fieldName: 'ruleId',
-    label: '积分规则ID',
+    component: 'Textarea',
+    fieldName: 'displayConfig',
+    label: '属性配置',
+    componentProps: {
+      rows: 10,
+      placeholder: '{\n  "background": "linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%)",\n  "boxShadow": "0 8px 32px rgba(255, 107, 107, 0.4)",\n  "color": "#ffffff",\n  "buttonBackground": "#ffffff",\n  "buttonColor": "#ff6b6b",\n  "borderRadius": "16px",\n  "padding": "24px"\n}',
+    },
   },
   {
     component: 'Switch',
     fieldName: 'status',
     label: '状态',
-    defaultValue: 1,
+    defaultValue: true,
     componentProps: {
       class: 'w-auto',
-    },
-  },
-  {
-    component: 'Switch',
-    fieldName: 'isHot',
-    label: '热门',
-    defaultValue: 0,
-    componentProps: {
-      class: 'w-auto',
+      checkedValue: true,
+      unCheckedValue: false,
+      checkedChildren: '启用',
+      unCheckedChildren: '禁用',
     },
   },
 ];

@@ -8,7 +8,7 @@ import type { VxeGridProps } from '#/adapter/vxe-table';
 
 import { Page, useVbenDrawer } from '@vben/common-ui';
 
-import { Popconfirm, Space } from 'antdv-next';
+import { Popconfirm, Space, Tag } from 'antdv-next';
 
 import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
 
@@ -129,14 +129,14 @@ function handleEdit(row: Recordable<number>) {
         </Space>
       </template>
       <template #status="{ row }">
-        <a-tag :color="row.status === 1 ? 'green' : 'red'">
-          {{ row.status === 1 ? '启用' : '禁用' }}
-        </a-tag>
+        <Tag :color="row.status ? 'green' : 'red'">
+          {{ row.status ? '启用' : '禁用' }}
+        </Tag>
       </template>
       <template #isHot="{ row }">
-        <a-tag :color="row.isHot === 1 ? 'orange' : 'default'">
-          {{ row.isHot === 1 ? '是' : '否' }}
-        </a-tag>
+        <Tag :color="row.isHot ? 'orange' : 'default'">
+          {{ row.isHot ? '是' : '否' }}
+        </Tag>
       </template>
       <template #action="{ row }">
         <Space>
