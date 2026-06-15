@@ -2,24 +2,17 @@
 import type { VbenFormProps } from '@vben/common-ui';
 import type { Recordable } from '@vben/types';
 
-import type { FriendsMoment } from '../api/friends-moment/model';
-
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
-import { Page, useVbenDrawer, useVbenModal } from '@vben/common-ui';
+import { Page, useVbenModal } from '@vben/common-ui';
 
-import { Image, Popconfirm, Space } from 'antdv-next';
+import { Image, Space, Spin, Tag } from 'antdv-next';
 
-import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
+import { useVbenVxeGrid } from '#/adapter/vxe-table';
 
 import { friendsMomentApi } from '../api/friends-moment';
 import { columns, querySchema } from './data';
 import friendsMomentAuditModal from './friends-moment-audit-modal.vue';
-import friendsMomentDrawer from './friends-moment-drawer.vue';
-
-const [FriendsMomentDrawer, friendsMomentDrawerApi] = useVbenDrawer({
-  connectedComponent: friendsMomentDrawer,
-});
 
 const [FriendsMomentAuditModal, friendsMomentAuditModalApi] = useVbenModal({
   connectedComponent: friendsMomentAuditModal,
@@ -80,78 +73,22 @@ const [BasicTable, tableApi] = useVbenVxeGrid({
   gridOptions,
 });
 
-async function handleDelete(row: FriendsMoment) {
-  await friendsMomentApi.deleteFriendsMoment([row.id]);
-  await tableApi.query();
-}
-
-function handleMultiDelete() {
-  const rows = tableApi.grid.getCheckboxRecords();
-  const ids = rows.map((row: FriendsMoment) => row.id);
-  window.modal.confirm({
-    title: '提示',
-    okType: 'danger',
-    content: `确认删除选中的${ids.length}条记录吗？`,
-    onOk: async () => {
-      await friendsMomentApi.deleteFriendsMoment(ids);
-      await tableApi.query();
-    },
-  });
-}
-
-function handleAdd() {
-  friendsMomentDrawerApi.setData({});
-  friendsMomentDrawerApi.open();
-}
-
-function handleEdit(row: Recordable<number>) {
-  friendsMomentDrawerApi.setData({ id: row.id });
-  friendsMomentDrawerApi.open();
-}
-
 function handleAudit(row: Recordable<number>) {
   friendsMomentAuditModalApi.setData({ id: row.id });
   friendsMomentAuditModalApi.open();
 }
 
-// 解析图片JSON
-function parseImages(images: string | undefined): string[] {
-  if (!images) return [];
-  try {
-    return JSON.parse(images) as string[];
-  } catch {
-    return [];
-  }
-}
 </script>
 
 <template>
   <Page :auto-content-height="true">
     <BasicTable table-title="朋友圈动态列表">
       <template #toolbar-tools>
-        <Space>
-          <a-button
-            :disabled="!vxeCheckboxChecked(tableApi)"
-            danger
-            type="primary"
-            v-access:code="['system:config:remove']"
-            @click="handleMultiDelete"
-          >
-            {{ $t('pages.common.delete') }}
-          </a-button>
-          <a-button
-            type="primary"
-            v-access:code="['system:config:add']"
-            @click="handleAdd"
-          >
-            {{ $t('pages.common.add') }}
-          </a-button>
-        </Space>
       </template>
       <template #images="{ row }">
         <Space>
           <Image
-            v-for="(img, index) in parseImages(row.images).slice(0, 3)"
+            v-for="(img, index) in row.photoList.slice(0, 3)"
             :key="index"
             :src="img"
             height="50px"
@@ -163,17 +100,17 @@ function parseImages(images: string | undefined): string[] {
               </div>
             </template>
           </Image>
-          <span v-if="parseImages(row.images).length > 3">
-            +{{ parseImages(row.images).length - 3 }}
+          <span v-if="row.photoList.length > 3">
+            +{{ row.photoList.length - 3 }}
           </span>
         </Space>
       </template>
       <template #video="{ row }">
-        <a-tag v-if="row.video" color="blue">有视频</a-tag>
+        <Tag v-if="row.video" color="blue">有视频</Tag>
         <span v-else>-</span>
       </template>
       <template #auditStatus="{ row }">
-        <a-tag
+        <Tag
           :color="
             row.auditStatus === 'approved'
               ? 'green'
@@ -189,45 +126,23 @@ function parseImages(images: string | undefined): string[] {
                 ? '已拒绝'
                 : '待审核'
           }}
-        </a-tag>
+        </Tag>
       </template>
       <template #status="{ row }">
-        <a-tag :color="row.status === 1 ? 'green' : 'red'">
+        <Tag :color="row.status === 1 ? 'green' : 'red'">
           {{ row.status === 1 ? '正常' : '禁用' }}
-        </a-tag>
+        </Tag>
       </template>
       <template #action="{ row }">
         <Space>
           <action-button
-            v-if="row.auditStatus === 'pending'"
-            v-access:code="['system:config:edit']"
             @click.stop="handleAudit(row)"
           >
             审核
           </action-button>
-          <action-button
-            v-access:code="['system:config:edit']"
-            @click.stop="handleEdit(row)"
-          >
-            {{ $t('pages.common.edit') }}
-          </action-button>
-          <Popconfirm
-            placement="left"
-            title="确认删除？"
-            @confirm="handleDelete(row)"
-          >
-            <action-button
-              danger
-              v-access:code="['system:config:remove']"
-              @click.stop=""
-            >
-              {{ $t('pages.common.delete') }}
-            </action-button>
-          </Popconfirm>
         </Space>
       </template>
     </BasicTable>
-    <FriendsMomentDrawer @reload="tableApi.query" />
     <FriendsMomentAuditModal @reload="tableApi.query" />
   </Page>
 </template>

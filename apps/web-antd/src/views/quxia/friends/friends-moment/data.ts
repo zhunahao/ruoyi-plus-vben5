@@ -4,8 +4,8 @@ import type { VxeGridProps } from '#/adapter/vxe-table';
 export const querySchema: FormSchemaGetter = () => [
   {
     component: 'Input',
-    fieldName: 'content',
-    label: '动态内容',
+    fieldName: 'memberName',
+    label: '发布会员',
   },
   {
     component: 'Select',
@@ -19,19 +19,7 @@ export const querySchema: FormSchemaGetter = () => [
         { label: '已拒绝', value: 'rejected' },
       ],
     },
-  },
-  {
-    component: 'Select',
-    fieldName: 'status',
-    label: '状态',
-    componentProps: {
-      allowClear: true,
-      options: [
-        { label: '正常', value: 1 },
-        { label: '禁用', value: 0 },
-      ],
-    },
-  },
+  }
 ];
 
 export const columns: VxeGridProps['columns'] = [
@@ -49,7 +37,7 @@ export const columns: VxeGridProps['columns'] = [
     showOverflow: true,
   },
   {
-    field: 'images',
+    field: 'photoList',
     title: '图片',
     width: 120,
     slots: { default: 'images' },
@@ -84,12 +72,6 @@ export const columns: VxeGridProps['columns'] = [
     title: '审核状态',
     width: 100,
     slots: { default: 'auditStatus' },
-  },
-  {
-    field: 'status',
-    title: '状态',
-    width: 80,
-    slots: { default: 'status' },
   },
   {
     field: 'createTime',
