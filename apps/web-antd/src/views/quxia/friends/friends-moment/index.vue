@@ -4,18 +4,23 @@ import type { Recordable } from '@vben/types';
 
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
-import { Page, useVbenModal } from '@vben/common-ui';
+import { Page, useVbenDrawer, useVbenModal } from '@vben/common-ui';
 
-import { Image, Space, Spin, Tag } from 'antdv-next';
+import { Image, Space, Spin, Tag, Tooltip } from 'antdv-next';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 
 import { friendsMomentApi } from '../api/friends-moment';
 import { columns, querySchema } from './data';
+import friendsCommentDrawer from './friends-comment-drawer.vue';
 import friendsMomentAuditModal from './friends-moment-audit-modal.vue';
 
 const [FriendsMomentAuditModal, friendsMomentAuditModalApi] = useVbenModal({
   connectedComponent: friendsMomentAuditModal,
+});
+
+const [FriendsCommentDrawer, friendsCommentDrawerApi] = useVbenDrawer({
+  connectedComponent: friendsCommentDrawer,
 });
 
 const formOptions: VbenFormProps = {
@@ -78,6 +83,11 @@ function handleAudit(row: Recordable<number>) {
   friendsMomentAuditModalApi.open();
 }
 
+function handleShowComments(row: Recordable<number>) {
+  friendsCommentDrawerApi.setData({ id: row.id });
+  friendsCommentDrawerApi.open();
+}
+
 </script>
 
 <template>
@@ -110,7 +120,14 @@ function handleAudit(row: Recordable<number>) {
         <span v-else>-</span>
       </template>
       <template #auditStatus="{ row }">
+        <Tooltip
+          v-if="row.auditStatus === 'rejected' && row.auditRemark"
+          :title="row.auditRemark"
+        >
+          <Tag color="red">已拒绝</Tag>
+        </Tooltip>
         <Tag
+          v-else
           :color="
             row.auditStatus === 'approved'
               ? 'green'
@@ -128,6 +145,16 @@ function handleAudit(row: Recordable<number>) {
           }}
         </Tag>
       </template>
+      <template #commentCount="{ row }">
+        <a
+          v-if="row.commentCount > 0"
+          class="text-blue-500 cursor-pointer hover:text-blue-600"
+          @click.stop="handleShowComments(row)"
+        >
+          {{ row.commentCount }}
+        </a>
+        <span v-else>0</span>
+      </template>
       <template #status="{ row }">
         <Tag :color="row.status === 1 ? 'green' : 'red'">
           {{ row.status === 1 ? '正常' : '禁用' }}
@@ -144,5 +171,6 @@ function handleAudit(row: Recordable<number>) {
       </template>
     </BasicTable>
     <FriendsMomentAuditModal @reload="tableApi.query" />
+    <FriendsCommentDrawer @reload="tableApi.query" />
   </Page>
 </template>

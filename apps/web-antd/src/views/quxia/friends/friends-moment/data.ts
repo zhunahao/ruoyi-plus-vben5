@@ -65,7 +65,7 @@ export const columns: VxeGridProps['columns'] = [
     field: 'commentCount',
     title: '评论数',
     width: 80,
-    sortable: true,
+    slots: { default: 'commentCount' },
   },
   {
     field: 'auditStatus',
@@ -159,6 +159,7 @@ export const auditSchema: FormSchemaGetter = () => [
     component: 'Textarea',
     fieldName: 'auditRemark',
     label: '审核备注',
+    rules: 'required',
     componentProps: {
       rows: 3,
     },
