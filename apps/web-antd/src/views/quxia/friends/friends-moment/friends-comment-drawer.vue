@@ -36,10 +36,10 @@ const columns: VxeGridProps['columns'] = [
     showOverflow: true,
   },
   {
-    field: 'replyMemberName',
+    field: 'replyToUserName',
     title: '回复对象',
     width: 100,
-    slots: { default: 'replyMemberName' },
+    slots: { default: 'replyToUserName' },
   },
   {
     field: 'status',
@@ -132,25 +132,25 @@ async function handleClosed() {
   <BasicDrawer title="评论列表" class="w-[700px]">
     <BasicTable>
       <template #avatar="{ row }">
-        <Avatar :src="row.memberAvatar" :size="40">
+        <Avatar :src="row.avatar" :size="40">
           {{ row.memberName?.slice(0, 1) }}
         </Avatar>
       </template>
-      <template #replyMemberName="{ row }">
-        <span v-if="row.replyMemberName" class="text-gray-500">
-          回复 {{ row.replyMemberName }}
+      <template #replyToUserName="{ row }">
+        <span v-if="row.replyToUserName" class="text-gray-500">
+          回复 {{ row.replyToUserName }}
         </span>
         <span v-else>-</span>
       </template>
       <template #status="{ row }">
-        <Tag :color="row.status === 1 ? 'green' : 'red'">
-          {{ row.status === 1 ? '正常' : '禁用' }}
+        <Tag :color="row.status ? 'green' : 'red'">
+          {{ row.status ? '正常' : '禁用' }}
         </Tag>
       </template>
       <template #action="{ row }">
         <Space>
           <a
-            v-if="row.status === 1"
+            v-if="row.status"
             class="text-red-500 cursor-pointer"
             @click.stop="handleStatusChange(row, 0)"
           >
@@ -163,9 +163,6 @@ async function handleClosed() {
           >
             启用
           </a>
-          <Popconfirm title="确认删除？" @confirm="handleDelete(row)">
-            <a class="text-red-500 cursor-pointer" @click.stop="">删除</a>
-          </Popconfirm>
         </Space>
       </template>
     </BasicTable>

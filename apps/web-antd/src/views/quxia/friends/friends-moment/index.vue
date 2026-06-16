@@ -6,7 +6,7 @@ import type { VxeGridProps } from '#/adapter/vxe-table';
 
 import { Page, useVbenDrawer, useVbenModal } from '@vben/common-ui';
 
-import { Image, Space, Spin, Tag, Tooltip } from 'antdv-next';
+import { Image, ImagePreviewGroup, Space, Spin, Tag, Tooltip } from 'antdv-next';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 
@@ -96,22 +96,18 @@ function handleShowComments(row: Recordable<number>) {
       <template #toolbar-tools>
       </template>
       <template #images="{ row }">
-        <Space>
-          <Image
-            v-for="(img, index) in row.photoList.slice(0, 3)"
-            :key="index"
-            :src="img"
-            height="50px"
-            width="50px"
-          >
+        <Space v-if="row.photoList.length > 0">
+          
+          <ImagePreviewGroup :items="row.photoList">
+            <Image :src="row.photoList[0]" height="50px" width="50px"/>
             <template #placeholder>
               <div class="flex size-full items-center justify-center">
                 <Spin />
               </div>
             </template>
-          </Image>
-          <span v-if="row.photoList.length > 3">
-            +{{ row.photoList.length - 3 }}
+          </ImagePreviewGroup>
+          <span v-if="row.photoList.length > 1">
+            +{{ row.photoList.length - 1 }}
           </span>
         </Space>
       </template>
@@ -120,22 +116,15 @@ function handleShowComments(row: Recordable<number>) {
         <span v-else>-</span>
       </template>
       <template #auditStatus="{ row }">
-        <Tooltip
-          v-if="row.auditStatus === 'rejected' && row.auditRemark"
-          :title="row.auditRemark"
-        >
+        <Tooltip v-if="row.auditStatus === 'rejected' && row.auditRemark" :title="row.auditRemark">
           <Tag color="red">已拒绝</Tag>
         </Tooltip>
-        <Tag
-          v-else
-          :color="
-            row.auditStatus === 'approved'
-              ? 'green'
-              : row.auditStatus === 'rejected'
-                ? 'red'
-                : 'orange'
-          "
-        >
+        <Tag v-else :color="row.auditStatus === 'approved'
+            ? 'green'
+            : row.auditStatus === 'rejected'
+              ? 'red'
+              : 'orange'
+          ">
           {{
             row.auditStatus === 'approved'
               ? '已通过'
@@ -146,11 +135,8 @@ function handleShowComments(row: Recordable<number>) {
         </Tag>
       </template>
       <template #commentCount="{ row }">
-        <a
-          v-if="row.commentCount > 0"
-          class="text-blue-500 cursor-pointer hover:text-blue-600"
-          @click.stop="handleShowComments(row)"
-        >
+        <a v-if="row.commentCount > 0" class="text-blue-500 cursor-pointer hover:text-blue-600"
+          @click.stop="handleShowComments(row)">
           {{ row.commentCount }}
         </a>
         <span v-else>0</span>
@@ -162,9 +148,7 @@ function handleShowComments(row: Recordable<number>) {
       </template>
       <template #action="{ row }">
         <Space>
-          <action-button
-            @click.stop="handleAudit(row)"
-          >
+          <action-button @click.stop="handleAudit(row)">
             审核
           </action-button>
         </Space>
