@@ -7,7 +7,7 @@ import { ref } from 'vue';
 
 import { useVbenDrawer } from '@vben/common-ui';
 
-import { Avatar, Popconfirm, Space, Tag } from 'antdv-next';
+import { Avatar, Space, Tag } from 'antdv-next';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 
@@ -113,12 +113,6 @@ async function handleStatusChange(row: FriendsComment, status: number) {
     id: row.id,
     status,
   });
-  await tableApi.query();
-  emit('reload');
-}
-
-async function handleDelete(row: FriendsComment) {
-  await friendsCommentApi.deleteComment([row.id]);
   await tableApi.query();
   emit('reload');
 }

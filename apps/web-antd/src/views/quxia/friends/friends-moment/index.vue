@@ -88,6 +88,10 @@ function handleShowComments(row: Recordable<number>) {
   friendsCommentDrawerApi.open();
 }
 
+function handlePreviewVideo(videoUrl: string) {
+  window.open(videoUrl, '_blank');
+}
+
 </script>
 
 <template>
@@ -97,9 +101,8 @@ function handleShowComments(row: Recordable<number>) {
       </template>
       <template #images="{ row }">
         <Space v-if="row.photoList.length > 0">
-          
           <ImagePreviewGroup :items="row.photoList">
-            <Image :src="row.photoList[0]" height="50px" width="50px"/>
+            <Image :src="row.photoList[0]" height="50px" width="50px" />
             <template #placeholder>
               <div class="flex size-full items-center justify-center">
                 <Spin />
@@ -112,19 +115,27 @@ function handleShowComments(row: Recordable<number>) {
         </Space>
       </template>
       <template #video="{ row }">
-        <Tag v-if="row.video" color="blue">有视频</Tag>
+        <a
+          v-if="row.videoObj"
+          class="text-blue-500 cursor-pointer hover:text-blue-600"
+          @click.stop="handlePreviewVideo(row.videoObj.url)"
+        >
+          <Tag color="blue">有视频</Tag>
+        </a>
         <span v-else>-</span>
       </template>
       <template #auditStatus="{ row }">
         <Tooltip v-if="row.auditStatus === 'rejected' && row.auditRemark" :title="row.auditRemark">
           <Tag color="red">已拒绝</Tag>
         </Tooltip>
-        <Tag v-else :color="row.auditStatus === 'approved'
+        <Tag
+v-else :color="row.auditStatus === 'approved'
             ? 'green'
             : row.auditStatus === 'rejected'
               ? 'red'
               : 'orange'
-          ">
+          "
+>
           {{
             row.auditStatus === 'approved'
               ? '已通过'
@@ -135,8 +146,10 @@ function handleShowComments(row: Recordable<number>) {
         </Tag>
       </template>
       <template #commentCount="{ row }">
-        <a v-if="row.commentCount > 0" class="text-blue-500 cursor-pointer hover:text-blue-600"
-          @click.stop="handleShowComments(row)">
+        <a
+v-if="row.commentCount > 0" class="text-blue-500 cursor-pointer hover:text-blue-600"
+          @click.stop="handleShowComments(row)"
+>
           {{ row.commentCount }}
         </a>
         <span v-else>0</span>
