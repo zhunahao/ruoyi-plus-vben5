@@ -8,18 +8,12 @@ export const querySchema: FormSchemaGetter = () => [
     label: '订单编号',
   },
   {
-    component: 'Input',
-    fieldName: 'phone',
-    label: '手机号',
-  },
-  {
     component: 'Select',
     componentProps: {
       options: [
         { label: '全部', value: '' },
-        { label: '待处理', value: 'WAIT_HANDLE' },
-        { label: '已处理', value: 'HANDLED' },
-        { label: '已拒绝', value: 'REJECTED' },
+        { label: '待处理', value: 'pending' },
+        { label: '已完成', value: 'completed' }
       ],
     },
     fieldName: 'status',
