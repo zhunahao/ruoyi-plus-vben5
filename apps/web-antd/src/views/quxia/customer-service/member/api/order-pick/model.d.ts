@@ -76,6 +76,34 @@ export interface OrderInfo {
    * 物流单号
    */
   logisticsNo?: string;
+
+  /**
+   * 收货人姓名
+   */
+  recipientName: string;
+  /**
+   * 收货人手机号
+   */
+  recipientPhone: string;
+  /**
+   * 收货人地址
+   */
+  recipientAddress: string;
+  /**
+   * 商品列表
+   */
+  items: productInfo[];
+}
+
+export interface productInfo {
+  /**
+   * 商品名称
+   */
+  productName: string;
+  /**
+   * 商品数量
+   */
+  quantity: number;
 }
 
 /**

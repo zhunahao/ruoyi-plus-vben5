@@ -69,6 +69,30 @@ export interface WithdrawOrderInfo {
    */
   statusName: string;
   /**
+   * 提现类型
+   */
+  withdrawType: string;
+  /**
+   * 支付宝账号
+   */
+  alipayAccount: string;
+  /**
+   * 支付宝姓名
+   */
+  alipayName: string;
+  /**
+   * 开户行
+   */
+  bankName: string;
+  /**
+   * 开户行账号
+   */
+  bankAccount: string;
+  /**
+   * 开户行姓名
+   */
+  bankOwner: string;
+  /**
    * 提现账号
    */
   withdrawAccount: string;

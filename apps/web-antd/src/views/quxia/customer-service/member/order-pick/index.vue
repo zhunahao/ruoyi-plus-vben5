@@ -13,6 +13,7 @@ import { Space } from 'antdv-next';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { orderPickApi } from '#/views/quxia/customer-service/member/api/order-pick';
+import { copyToClipboard } from '#/views/quxia/utils/clipboard';
 
 import { columns, querySchema } from './data';
 import orderShipModal from './order-ship-modal.vue';
@@ -83,16 +84,11 @@ function handleSetShip(row: OrderInfo) {
   shipModalApi.open();
 }
 
-function copyRecipient(row: OrderInfo) {
-  const text = `姓名：${row.recipientName}\n电话：${row.recipientPhone}\n地址：${row.recipientAddress}`;
-  navigator.clipboard.writeText(text);
-  window.message.success('收货信息已复制到剪贴板');
-}
-
-function copyItems(row: OrderInfo) {
-  const text = row.items.map((item) => `${item.productName} x ${item.quantity}`).join('\n');
-  navigator.clipboard.writeText(text);
-  window.message.success('商品信息已复制到剪贴板');
+function copyRecipientAndItems(row: OrderInfo) {
+  const text = `姓名：${row.recipientName}\n电话：${row.recipientPhone}\n地址：${row.recipientAddress}\n\n`;
+  const textItems = row.items.map((item) => `${item.productName} x ${item.quantity}`).join('\n');
+  copyToClipboard(text + textItems);
+  window.message.success('收货和商品信息已复制到剪贴板');
 }
 </script>
 
@@ -107,14 +103,14 @@ function copyItems(row: OrderInfo) {
         </Space>
       </template>
       <template #recipient-cell="{ row }">
-        <div class="custom-cell" style="font-weight: bold" @click="copyRecipient(row)">
+        <div class="custom-cell" style="font-weight: bold" @click="copyRecipientAndItems(row)">
           <span style="font-size: 12px; color: gray">姓名：{{ row.recipientName }}</span><br />
           <span style="font-size: 12px; color: gray">电话：{{ row.recipientPhone }}</span><br />
           <span style="font-size: 12px; color: gray">地址：{{ row.recipientAddress }}</span>
         </div>
       </template>
       <template #item-cell="{ row }">
-        <div class="custom-cell" style="font-weight: bold" @click="copyItems(row)">
+        <div class="custom-cell" style="font-weight: bold" @click="copyRecipientAndItems(row)">
           <span style="font-size: 12px; color: gray" v-for="item in row.items" :key="item.id + item.applyId">
             {{ item.productName }} x {{ item.quantity }}<br />
           </span><br />

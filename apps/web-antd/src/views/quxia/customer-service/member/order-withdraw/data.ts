@@ -57,8 +57,8 @@ export const columns: VxeGridProps['columns'] = [
   },
   {
     field: 'withdrawAccount',
-    title: '提现账号',
-    minWidth: 150,
+    title: '提现账号(点击复制)',
+    minWidth: 160,
     slots: { default: 'withdraw-cell' },
   },
   // {

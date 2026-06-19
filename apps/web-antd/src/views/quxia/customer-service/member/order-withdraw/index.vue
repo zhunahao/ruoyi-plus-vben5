@@ -13,6 +13,7 @@ import { Modal,Space } from 'antdv-next';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { orderWithdrawApi } from '#/views/quxia/customer-service/member/api/order-withdraw';
+import { copyToClipboard } from '#/views/quxia/utils/clipboard';
 
 import { columns, querySchema } from './data';
 
@@ -84,39 +85,34 @@ async function handleProcess(row: WithdrawOrderInfo) {
     title: '操作提示',
   });
 }
+
+function copyAccount(row: WithdrawOrderInfo) {
+  const text = row.withdrawType === 'alipay' ? `支付宝账号：${row.alipayAccount}\n姓名：${row.alipayName}\n\n` : `开户行：${row.bankName}\n账号：${row.bankAccount}\n姓名：${row.bankOwner}\n\n`; 
+  copyToClipboard(text);
+  window.message.success('账号信息已复制到剪贴板');
+}
 </script>
 
 <template>
   <Page :auto-content-height="true">
     <BasicTable class="flex-1 overflow-hidden" table-title="提现订单列表">
       <template #toolbar-tools>
-        <Space>
-
-        </Space>
+        <Space />
       </template>
       <template #withdraw-cell="{ row }">
         <div
           class="custom-cell"
           style="font-weight: bold"
           v-if="row.withdrawType === 'alipay'"
+          @click="copyAccount(row)"
         >
-          <span style="font-size: 12px; color: gray"
-            >支付宝账号：{{ row.alipayAccount }}</span
-          ><br />
-          <span style="font-size: 12px; color: gray"
-            >姓名：{{ row.alipayName }}</span
-          >
+          <span style="font-size: 12px; color: gray">支付宝账号：{{ row.alipayAccount }}</span><br />
+          <span style="font-size: 12px; color: gray">姓名：{{ row.alipayName }}</span>
         </div>
-        <div class="custom-cell" style="font-weight: bold" v-else>
-          <span style="font-size: 12px; color: gray"
-            >开户行：{{ row.bankName }}</span
-          ><br />
-          <span style="font-size: 12px; color: gray"
-            >账号：{{ row.bankAccount }}</span
-          ><br />
-          <span style="font-size: 12px; color: gray"
-            >姓名：{{ row.bankOwner }}</span
-          >
+        <div class="custom-cell" style="font-weight: bold" @click="copyAccount(row)" v-else>
+          <span style="font-size: 12px; color: gray">开户行：{{ row.bankName }}</span><br />
+          <span style="font-size: 12px; color: gray">账号：{{ row.bankAccount }}</span><br />
+          <span style="font-size: 12px; color: gray">姓名：{{ row.bankOwner }}</span>
         </div>
       </template>
       <template #action="{ row }">

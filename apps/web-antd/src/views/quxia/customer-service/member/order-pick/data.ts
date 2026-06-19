@@ -41,14 +41,14 @@ export const columns: VxeGridProps['columns'] = [
   },
   {
     field: 'totalAmount',
-    title: '收货信息',
-    minWidth: 150,
+    title: '收货信息（点击复制）',
+    minWidth: 160,
     slots: { default: 'recipient-cell' },
   },
   {
     field: 'productInfo',
-    title: '商品信息',
-    minWidth: 150,
+    title: '商品信息（点击复制）',
+    minWidth: 160,
     slots: { default: 'item-cell' },
   },
   {
