@@ -71,11 +71,15 @@ export interface OrderInfo {
   /**
    * 物流公司
    */
-  logisticsCompany?: string;
+  shippingCompany?: string;
+  /**
+   * 物流公司名称
+   */
+  shippingCompanyText?: string;
   /**
    * 物流单号
    */
-  logisticsNo?: string;
+  trackingNumber?: string;
 
   /**
    * 收货人姓名

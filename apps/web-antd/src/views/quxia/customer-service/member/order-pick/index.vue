@@ -118,8 +118,17 @@ function copyRecipientAndItems(row: OrderInfo) {
       </template>
       <template #status-cell="{ row }">
         <div class="custom-cell" style="font-weight: bold">
-          <span style="font-size: 12px; color: gray" :style="{ color: row.status === 'shipped' ? 'green' : 'red' }">{{
-            row.statusText }}</span>
+          <span
+            style="font-size: 12px; color: gray"
+            :style="{
+              color:
+                row.status === 'shipped'
+                  ? 'green'
+                  : row.status === 'completed'
+                    ? '#1890ff'
+                    : 'red',
+            }"
+          >{{ row.statusText }}</span>
         </div>
       </template>
       <template #action="{ row }">

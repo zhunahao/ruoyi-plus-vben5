@@ -15,15 +15,15 @@ export function copyToClipboard(text: string): Promise<void> {
       textarea.value = text;
       textarea.style.position = 'fixed';
       textarea.style.opacity = '0';
-      document.body.append(textarea);
+      document.body.appendChild(textarea);
       textarea.select();
       try {
         document.execCommand('copy');
         resolve();
-      } catch (error) {
-        reject(error);
+      } catch (err) {
+        reject(err);
       } finally {
-        textarea.remove();
+        document.body.removeChild(textarea);
       }
     }
   });

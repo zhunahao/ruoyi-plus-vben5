@@ -19,7 +19,7 @@ export const querySchema: FormSchemaGetter = () => [
         { label: '全部', value: '' },
         { label: '待发货', value: 'pending' },
         { label: '已发货', value: 'shipped' },
-        { label: '已完成', value: 'completed' },
+        { label: '已完成', value: 'completed' }
       ],
     },
     fieldName: 'status',
@@ -68,7 +68,7 @@ export const columns: VxeGridProps['columns'] = [
     minWidth: 150,
   },
   {
-    field: 'shippingCompany',
+    field: 'shippingCompanyText',
     title: '物流公司',
     minWidth: 120,
   },
