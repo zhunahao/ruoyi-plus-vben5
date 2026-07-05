@@ -3,9 +3,9 @@ import type { VbenFormProps } from '@vben/common-ui';
 
 import type { VxeGridProps } from '#/adapter/vxe-table';
 import type {
-  OrderInfo,
-  OrderListQuery,
-} from '#/views/quxia/customer-service/member/api/order-pick/model';
+  ProductOrderInfo,
+  ProductOrderListQuery,
+} from '#/views/quxia/customer-service/member/api/order-product/model';
 
 import { Page, useVbenModal } from '@vben/common-ui';
 
@@ -13,7 +13,7 @@ import { Segmented, Space } from 'antdv-next';
 import { ref } from 'vue';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import { orderPickApi } from '#/views/quxia/customer-service/member/api/order-pick';
+import { orderProductApi } from '#/views/quxia/customer-service/member/api/order-product';
 import { copyToClipboard } from '#/views/quxia/utils/clipboard';
 
 import { columns, querySchema } from './data';
@@ -37,6 +37,13 @@ const formOptions: VbenFormProps = {
   ],
 };
 
+const statusOptions = [
+  { label: '待处理', value: 'pending' },
+  { label: '处理中', value: 'shipped' },
+  { label: '已完成', value: 'completed' },
+];
+const currentStatus = ref('pending');
+
 const gridOptions: VxeGridProps = {
   checkboxConfig: {
     highlight: true,
@@ -49,14 +56,14 @@ const gridOptions: VxeGridProps = {
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues = {}) => {
-        const params: OrderListQuery = {
+        const params: ProductOrderListQuery = {
           pageNum: page.currentPage,
           pageSize: page.pageSize,
-          type: 'pick',
+          type: 'product',
           status: currentStatus.value,
           ...formValues,
         };
-        return await orderPickApi.getOrderList(params);
+        return await orderProductApi.getOrderList(params);
       },
     },
   },
@@ -69,7 +76,7 @@ const gridOptions: VxeGridProps = {
   rowConfig: {
     keyField: 'id',
   },
-  id: 'quxia-order-pick-index',
+  id: 'quxia-order-product-index',
 };
 
 const [BasicTable, tableApi] = useVbenVxeGrid({
@@ -81,25 +88,18 @@ const [OrderShipModal, shipModalApi] = useVbenModal({
   connectedComponent: orderShipModal,
 });
 
-const statusOptions = [
-  { label: '待处理', value: 'pending' },
-  { label: '处理中', value: 'shipped' },
-  { label: '已完成', value: 'completed' },
-];
-const currentStatus = ref('pending');
-
 function onStatusChange(value: string | number) {
   currentStatus.value = value as string;
   tableApi.formApi.setValues({ status: value });
   tableApi.query();
 }
 
-function handleSetShip(row: OrderInfo) {
+function handleSetShip(row: ProductOrderInfo) {
   shipModalApi.setData({ orderId: row.id, orderNo: row.orderNo });
   shipModalApi.open();
 }
 
-function copyRecipientAndItems(row: OrderInfo) {
+function copyRecipientAndItems(row: ProductOrderInfo) {
   const text = `姓名：${row.recipientName}\n电话：${row.recipientPhone}\n地址：${row.recipientAddress}\n\n`;
   const textItems = row.items.map((item) => `${item.productName} x ${item.quantity}`).join('\n');
   copyToClipboard(text + textItems);
@@ -109,7 +109,7 @@ function copyRecipientAndItems(row: OrderInfo) {
 
 <template>
   <Page :auto-content-height="true">
-    <BasicTable class="flex-1 overflow-hidden" table-title="提货订单列表">
+    <BasicTable class="flex-1 overflow-hidden" table-title="商品订单列表">
       <template #toolbar-tools>
         <Segmented
           v-model:value="currentStatus"
