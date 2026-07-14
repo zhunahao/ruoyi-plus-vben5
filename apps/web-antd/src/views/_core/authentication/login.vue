@@ -172,8 +172,14 @@ async function handleAccountLogin(values: LoginAndRegisterParams) {
 </script>
 
 <template>
-  <AuthenticationLogin ref="loginFormRef" :form-schema="formSchema" :loading="authStore.loginLoading"
-    :show-register="false" :show-third-party-login="false" @submit="handleAccountLogin">
+  <AuthenticationLogin ref="loginFormRef" :form-schema="formSchema" 
+    :loading="authStore.loginLoading"
+    :show-register="false" 
+    :show-third-party-login="false" 
+    :show-forget-password="false"
+    :show-code-login="false"
+    :show-qrcode-login="false"
+    @submit="handleAccountLogin">
     <!-- 可通过show-third-party-login控制是否显示第三方登录 -->
     <template #third-party-login>
       <OAuthLogin />

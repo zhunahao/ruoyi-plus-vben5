@@ -102,8 +102,16 @@ export const overridesPreferences = defineOverridesPreferences({
    *
    * !!! 更改配置后请清空浏览器缓存
    */
-  // logo: {
-  //   enable: true,
-  //   source: '',
-  // },
+  logo: {
+    enable: true,
+    source: 'http://qjy.henanqianjiayi.xin:8010/logo.png',
+  },
+  copyright: {
+    enable: true,
+    companyName: '河南纤嘉益科技有限公司',
+    companySiteLink: 'http://henanqianjiayi.xin',
+    date: '2026',
+    icp: '豫ICP备2026026426号-1',
+    icpLink: 'https://beian.miit.gov.cn/',
+  },
 });
