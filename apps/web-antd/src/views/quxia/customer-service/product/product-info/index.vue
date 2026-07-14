@@ -132,6 +132,11 @@ function handleEdit(row: Recordable<number>) {
           </Image>
         </Space>
       </template>
+      <template #status="{ row }">
+        <span style="font-weight: bold" :style="{ color: row.status === 'active' ? 'green' : 'red' }">
+          {{ row.status === 'active' ? '在售' : '下架' }}
+        </span>
+      </template>
       <template #action="{ row }">
         <Space>
           <action-button v-access:code="['system:config:edit']" @click.stop="handleEdit(row)">

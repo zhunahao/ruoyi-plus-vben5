@@ -36,12 +36,12 @@ export const columns: VxeGridProps['columns'] = [
     width: 100,
     sortable: true,
   },
-  // {
-  //   field: 'status',
-  //   title: '状态',
-  //   width: 120,
-  //   slots: { default: 'status' },
-  // },
+  {
+    field: 'status',
+    title: '状态',
+    width: 100,
+    slots: { default: 'status' },
+  },
   {
     field: 'createTime',
     title: '创建时间',
@@ -97,6 +97,18 @@ export const drawerSchema: FormSchemaGetter = () => [
     label: '商品描述',
     rules: 'required',
     slots: { default: 'description-editor' },
+  },
+  {
+    component: 'RadioGroup',
+    fieldName: 'status',
+    label: '商品状态',
+    rules: 'required',
+    componentProps: {
+      options: [
+        { label: '在售', value: 'active' },
+        { label: '下架', value: 'inactive' },
+      ],
+    },
   },
   {
     component: 'Switch',

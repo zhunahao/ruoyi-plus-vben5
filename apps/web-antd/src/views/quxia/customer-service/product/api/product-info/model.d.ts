@@ -41,6 +41,11 @@ export interface ProductInfo {
   isNew?: number;
 
   /**
+   * 商品状态（active: 在售, inactive: 下架）
+   */
+  status?: string;
+
+  /**
    * 销量
    */
   sales?: number;
