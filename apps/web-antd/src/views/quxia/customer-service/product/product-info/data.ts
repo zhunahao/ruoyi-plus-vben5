@@ -106,7 +106,7 @@ export const drawerSchema: FormSchemaGetter = () => [
     componentProps: {
       options: [
         { label: '在售', value: 'active' },
-        { label: '下架', value: 'inactive' },
+        { label: '下架', value: 'disabled' },
       ],
     },
   },
