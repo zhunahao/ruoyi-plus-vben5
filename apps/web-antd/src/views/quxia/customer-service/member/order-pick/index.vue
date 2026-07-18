@@ -118,14 +118,14 @@ function copyRecipientAndItems(row: OrderInfo) {
         />
       </template>
       <template #recipient-cell="{ row }">
-        <div class="custom-cell" style="font-weight: bold" @click="copyRecipientAndItems(row)">
+        <div class="custom-cell" style="text-align: left" @click="copyRecipientAndItems(row)">
           <span style="font-size: 12px; color: gray">姓名：{{ row.recipientName }}</span><br />
           <span style="font-size: 12px; color: gray">电话：{{ row.recipientPhone }}</span><br />
           <span style="font-size: 12px; color: gray">地址：{{ row.recipientAddress }}</span>
         </div>
       </template>
       <template #item-cell="{ row }">
-        <div class="custom-cell" style="font-weight: bold" @click="copyRecipientAndItems(row)">
+        <div class="custom-cell" style="text-align: left" @click="copyRecipientAndItems(row)">
           <span style="font-size: 12px; color: gray" v-for="item in row.items" :key="item.id + item.applyId">
             {{ item.productName }} x {{ item.quantity }}<br />
           </span><br />

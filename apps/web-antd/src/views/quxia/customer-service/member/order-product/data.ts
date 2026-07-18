@@ -22,7 +22,7 @@ export const columns: VxeGridProps['columns'] = [
     minWidth: 180,
   },
   {
-    field: 'applyName',
+    field: 'memberName',
     title: '用户',
     minWidth: 100,
   },
