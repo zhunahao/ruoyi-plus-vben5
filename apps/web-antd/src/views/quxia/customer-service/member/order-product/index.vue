@@ -59,7 +59,7 @@ const gridOptions: VxeGridProps = {
         const params: ProductOrderListQuery = {
           pageNum: page.currentPage,
           pageSize: page.pageSize,
-          type: 'product',
+          paymentStatus: 'paid',
           status: currentStatus.value,
           ...formValues,
         };
