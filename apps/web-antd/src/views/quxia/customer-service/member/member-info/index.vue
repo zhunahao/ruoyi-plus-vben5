@@ -2,10 +2,10 @@
 import type { VbenFormProps } from '@vben/common-ui';
 import type { Recordable } from '@vben/types';
 import type { VxeGridProps } from '#/adapter/vxe-table';
-import type { MemberFinanceResponse } from '../api/member-info/model';
+import type { MemberFinanceResponse, MemberLevelOption } from '../api/member-info/model';
 
 import { Page, useVbenDrawer, useVbenModal } from '@vben/common-ui';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
 import { Space, Statistic } from 'antdv-next';
 
@@ -55,11 +55,19 @@ const memberFinance = ref<MemberFinanceResponse>({
   inventorySums: [],
 });
 
+const memberTypeOptions = ref<MemberLevelOption[]>([]);
+
 memberApi.getFinanceSum().then((res) => {
   memberFinance.value = res;
-  console.log('会员总余额和总收益：', res);
+  // console.log('会员总余额和总收益：', res);
 }).catch((error) => {
   console.error('获取会员总余额和总收益失败：', error);
+});
+
+memberApi.getMemberLevelList().then((res) => {
+  memberTypeOptions.value = (res as any) || [];
+}).catch((error) => {
+  console.error('获取会员类型列表失败：', error);
 });
 
 const formOptions: VbenFormProps = {
@@ -69,6 +77,15 @@ const formOptions: VbenFormProps = {
   schema: querySchema(),
   wrapperClass: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
 };
+
+watch(memberTypeOptions, (newOptions) => {
+  tableApi.setState({
+    formOptions: {
+      ...formOptions,
+      schema: querySchema({ memberTypeOptions: newOptions }),
+    },
+  });
+});
 
 const gridOptions: VxeGridProps = {
   checkboxConfig: {

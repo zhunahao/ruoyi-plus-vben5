@@ -29,6 +29,7 @@ export interface MemberListParams {
   phone?: string;
   memberCode?: string;
   recommendMemberCode?: string;
+  memberLevelId?: string;
   userId?: string;
   memberId?: string;
 }
@@ -178,9 +179,7 @@ export interface MemberLevelOption {
 }
 
 // 会员等级列表响应
-export interface MemberLevelListResponse {
-  items: MemberLevelOption[];
-}
+export type MemberLevelListResponse = MemberLevelOption[];
 
 // 库存商品项
 export interface InventoryProduct {

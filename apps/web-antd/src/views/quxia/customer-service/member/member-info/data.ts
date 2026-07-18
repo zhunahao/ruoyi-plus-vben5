@@ -1,7 +1,9 @@
-import type { FormSchemaGetter } from '#/adapter/form';
+import type { FormSchemaGetter, VbenFormSchema } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
-export const querySchema: FormSchemaGetter = () => [
+export const querySchema = (options: {
+  memberTypeOptions?: { label: string; value: string }[];
+} = {}): VbenFormSchema[] => [
   {
     component: 'Input',
     fieldName: 'name',
@@ -21,6 +23,16 @@ export const querySchema: FormSchemaGetter = () => [
     component: 'Input',
     fieldName: 'recommendMemberCode',
     label: '推荐人编号',
+  },
+  {
+    component: 'Select',
+    fieldName: 'memberLevelId',
+    label: '会员类型',
+    componentProps: {
+      options: options.memberTypeOptions || [],
+      placeholder: '请选择会员类型',
+      allowClear: true,
+    },
   },
 ];
 
