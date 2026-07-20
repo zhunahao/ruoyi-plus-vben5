@@ -1,48 +1,48 @@
 <script lang="ts" setup>
+import type { MonthAnalysisScheme } from './api/model';
 import type { EchartsUIType } from '@vben/plugins/echarts';
 
 import { EchartsUI, useEcharts } from '@vben/plugins/echarts';
 import { onMounted, ref } from 'vue';
 
+import { analysisSchemeApi } from './api';
+
 const chartRef = ref<EchartsUIType>();
 const { renderEcharts } = useEcharts(chartRef);
 
-onMounted(() => {
+function renderChart(data: MonthAnalysisScheme[]) {
+  // 提取唯一的月份作为 x 轴
+  const months = [...new Set(data.map((item) => item.month))];
+  // 提取唯一的系列名称
+  const seriesNames = [...new Set(data.map((item) => item.name))];
+
+  const colors = ['#5ab1ef', '#019680', '#ff7f50', '#9b59b6', '#f1c40f'];
+  const series = seriesNames.map((name, index) => ({
+    areaStyle: {},
+    data: months.map((month) => {
+      const item = data.find((d) => d.month === month && d.name === name);
+      return item ? item.value : 0;
+    }),
+    itemStyle: {
+      color: colors[index % colors.length] || '#5ab1ef',
+    },
+    name,
+    smooth: true,
+    type: 'line',
+  }));
+
   renderEcharts({
     grid: {
       bottom: 0,
       containLabel: true,
       left: '1%',
       right: '1%',
-      top: '2 %',
+      top: '2%',
     },
-    series: [
-      {
-        areaStyle: {},
-        data: [
-          111, 2000, 6000, 16_000, 33_333, 55_555, 64_000, 33_333, 18_000,
-          36_000, 70_000, 42_444, 23_222, 13_000, 8000, 4000, 1200, 333, 222,
-          111,
-        ],
-        itemStyle: {
-          color: '#5ab1ef',
-        },
-        smooth: true,
-        type: 'line',
-      },
-      {
-        areaStyle: {},
-        data: [
-          33, 66, 88, 333, 3333, 6200, 20_000, 3000, 1200, 13_000, 22_000,
-          11_000, 2221, 1201, 390, 198, 60, 30, 22, 11,
-        ],
-        itemStyle: {
-          color: '#019680',
-        },
-        smooth: true,
-        type: 'line',
-      },
-    ],
+    legend: {
+      data: seriesNames,
+    },
+    series: series as any,
     tooltip: {
       axisPointer: {
         lineStyle: {
@@ -52,20 +52,12 @@ onMounted(() => {
       },
       trigger: 'axis',
     },
-    // xAxis: {
-    //   axisTick: {
-    //     show: false,
-    //   },
-    //   boundaryGap: false,
-    //   data: Array.from({ length: 18 }).map((_item, index) => `${index + 6}:00`),
-    //   type: 'category',
-    // },
     xAxis: {
       axisTick: {
         show: false,
       },
       boundaryGap: false,
-      data: Array.from({ length: 18 }).map((_item, index) => `${index + 6}:00`),
+      data: months,
       splitLine: {
         lineStyle: {
           type: 'solid',
@@ -80,7 +72,6 @@ onMounted(() => {
         axisTick: {
           show: false,
         },
-        max: 80_000,
         splitArea: {
           show: true,
         },
@@ -89,6 +80,16 @@ onMounted(() => {
       },
     ],
   });
+}
+
+onMounted(async () => {
+  try {
+    const res = await analysisSchemeApi.levelUserMonthAnalysis();
+    renderChart((res as any) || []);
+  } catch {
+    // 请求失败时使用空数据
+    renderChart([]);
+  }
 });
 </script>
 
