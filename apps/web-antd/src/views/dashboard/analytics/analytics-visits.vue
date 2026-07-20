@@ -1,51 +1,67 @@
 <script lang="ts" setup>
+import type { MonthAnalysisScheme } from './api/model';
 import type { EchartsUIType } from '@vben/plugins/echarts';
 
 import { EchartsUI, useEcharts } from '@vben/plugins/echarts';
 import { onMounted, ref } from 'vue';
 
+import { analysisSchemeApi } from './api';
+
 const chartRef = ref<EchartsUIType>();
 const { renderEcharts } = useEcharts(chartRef);
 
-onMounted(() => {
+function renderChart(data: MonthAnalysisScheme[]) {
+  const months = [...new Set(data.map((item) => item.month))];
+  const seriesNames = [...new Set(data.map((item) => item.name))];
+
+  const series = seriesNames.map((name) => ({
+    barMaxWidth: 80,
+    data: months.map((month) => {
+      const item = data.find((d) => d.month === month && d.name === name);
+      return item ? item.value : 0;
+    }),
+    name,
+    type: 'bar',
+  }));
+
   renderEcharts({
     grid: {
       bottom: 0,
       containLabel: true,
       left: '1%',
       right: '1%',
-      top: '2 %',
+      top: '2%',
     },
-    series: [
-      {
-        barMaxWidth: 80,
-        // color: '#4f69fd',
-        data: [
-          3000, 2000, 3333, 5000, 3200, 4200, 3200, 2100, 3000, 5100, 6000,
-          3200, 4800,
-        ],
-        type: 'bar',
-      },
-    ],
+    legend: {
+      data: seriesNames,
+    },
+    series: series as any,
     tooltip: {
       axisPointer: {
         lineStyle: {
-          // color: '#4f69fd',
           width: 1,
         },
       },
       trigger: 'axis',
     },
     xAxis: {
-      data: Array.from({ length: 12 }).map((_item, index) => `${index + 1}月`),
+      data: months,
       type: 'category',
     },
     yAxis: {
-      max: 8000,
       splitNumber: 4,
       type: 'value',
     },
   });
+}
+
+onMounted(async () => {
+  try {
+    const res = await analysisSchemeApi.inventoryProductMonthAnalysis();
+    renderChart((res as any) || []);
+  } catch {
+    renderChart([]);
+  }
 });
 </script>
 
