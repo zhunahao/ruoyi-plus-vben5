@@ -34,21 +34,29 @@ onMounted(async () => {
         icon: markRaw(SvgCardIcon),
         title: '会员数量',
         value: Number(data.memberCount || 0),
+        totalTitle: '会员数量',
+        totalValue: Number(data.memberCount || 0),
       }) as unknown as AnalysisOverviewItem,
       markRaw({
         icon: markRaw(SvgCakeIcon),
         title: '商品数量',
         value: Number(data.productCount || 0),
+        totalTitle: '商品数量',
+        totalValue: Number(data.productCount || 0),
       }) as unknown as AnalysisOverviewItem,
       markRaw({
         icon: markRaw(SvgDownloadIcon),
         title: '总余额',
-        value: Number(String(data.totalBalance || 0).replaceAll(',', '')),
+        value: Number(data.totalBalance || 0),
+        totalTitle: '总余额',
+        totalValue: Number(data.totalBalance || 0),
       }) as unknown as AnalysisOverviewItem,
       markRaw({
         icon: markRaw(SvgBellIcon),
         title: '总收益',
-        value: Number(String(data.totalEarnings || 0).replaceAll(',', '')),
+        value: Number(data.totalEarnings || 0),
+        totalTitle: '总收益',
+        totalValue: Number(data.totalEarnings || 0),
       }) as unknown as AnalysisOverviewItem,
     ];
   } catch {
@@ -84,10 +92,10 @@ const chartTabs: TabOption[] = [
       <!-- <AnalysisChartCard class="mt-5 md:mt-0 md:mr-4 md:w-1/3" title="访问数量">
         <AnalyticsVisitsData />
       </AnalysisChartCard> -->
-      <AnalysisChartCard class="mt-5 md:mt-0 md:mr-4 md:w-1/3" title="代理人数">
+      <AnalysisChartCard class="mt-5 md:mt-0 md:mr-4 md:w-1/2" title="代理人数">
         <AnalyticsVisitsSource />
       </AnalysisChartCard>
-      <AnalysisChartCard class="mt-5 md:mt-0 md:w-1/3" title="商品库存">
+      <AnalysisChartCard class="mt-5 md:mt-0 md:w-1/2" title="商品库存">
         <AnalyticsVisitsSales />
       </AnalysisChartCard>
     </div>
