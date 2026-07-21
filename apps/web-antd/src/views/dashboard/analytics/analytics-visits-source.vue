@@ -41,7 +41,7 @@ function renderChart(data: AnalysisScheme[]) {
           formatter: '{b}: {c}',
           show: true,
         },
-        name: '访问来源',
+        name: '代理人数',
         radius: ['40%', '65%'],
         type: 'pie',
       },

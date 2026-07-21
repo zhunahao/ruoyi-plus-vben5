@@ -28,7 +28,7 @@ function renderChart(data: AnalysisScheme[]) {
           formatter: '{b}: {c}',
           show: true,
         },
-        name: '商业占比',
+        name: '商品库存',
         radius: '80%',
         roseType: 'radius',
         type: 'pie',
