@@ -8,7 +8,7 @@ import type { VxeGridProps } from '#/adapter/vxe-table';
 
 import { Page, useVbenDrawer } from '@vben/common-ui';
 
-import { Image, Popconfirm, Space } from 'antdv-next';
+import { Image, Popconfirm, Space, Spin } from 'antdv-next';
 
 import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
 
