@@ -4,7 +4,7 @@ import { computed, ref } from 'vue';
 import { useVbenDrawer } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 
-import { Divider, Popconfirm, Select, message } from 'antdv-next';
+import { Divider, Popconfirm, Select, Spin, message } from 'antdv-next';
 
 import { useVbenForm } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
@@ -38,6 +38,8 @@ const title = computed(() => {
   }
   return `${productName.value} - 各等级分成规则`;
 });
+
+const loading = ref(false);
 
 // ==================== 等级模式：基础表单 ====================
 const [LevelForm, levelFormApi] = useVbenForm({
@@ -109,30 +111,33 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
   onClosed: handleClosed,
   onConfirm: handleConfirm,
   async onOpenChange(isOpen) {
-    if (!isOpen) return null;
-    drawerApi.drawerLoading(true);
+    if (!isOpen) return;
+    // loading.value = true;
 
-    const data = drawerApi.getData() as {
-      mode: 'level' | 'product';
-      id: number;
-      name: string;
-    };
+    try {
+      const data = drawerApi.getData() as {
+        mode: 'level' | 'product';
+        id: number;
+        name: string;
+      };
 
-    mode.value = data.mode;
-    resetInitialized();
+      mode.value = data.mode;
+      resetInitialized();
 
-    if (data.mode === 'level') {
-      levelId.value = data.id;
-      levelName.value = data.name;
-      await loadLevelData();
-    } else {
-      productId.value = data.id;
-      productName.value = data.name;
-      await loadProductData();
+      if (data.mode === 'level') {
+        levelId.value = data.id;
+        levelName.value = data.name;
+        await loadLevelData();
+      } else {
+        productId.value = data.id;
+        productName.value = data.name;
+        await loadProductData();
+      }
+
+      await markInitialized();
+    } finally {
+      loading.value = false;
     }
-
-    await markInitialized();
-    drawerApi.drawerLoading(false);
   },
 });
 
@@ -168,23 +173,37 @@ async function loadLevelData() {
 // ==================== 商品模式：加载数据 ====================
 async function loadProductData() {
   try {
-    const res = await commissionRulesApi.getByProductId(productId.value);
-    if (res && res.length > 0) {
-      levelProductData.value = res;
-    } else {
-      // 没有数据时，加载所有等级作为空模板
-      const levelList = await memberLevelApi.memberLevelList({
-        pageNum: 1,
-        pageSize: 9999,
-      });
-      levelProductData.value = (levelList?.rows || []).map((lvl: any) => ({
+    // 从会员等级列表获取等级数据，并从 commissionRules 字段解析当前商品的配置
+    const levelList = await memberLevelApi.memberLevelList({
+      pageNum: 1,
+      pageSize: 9999,
+    });
+    const rows: any[] = levelList?.rows || [];
+
+    levelProductData.value = rows.map((lvl: any) => {
+      let productInfo: any = {};
+      const rawRules = lvl.commissionRules;
+      // 排除空值、空字符串
+      if (rawRules && rawRules !== '') {
+        try {
+          const rules =
+            typeof rawRules === 'string' ? JSON.parse(rawRules) : rawRules;
+          productInfo =
+            (rules.products || []).find(
+              (p: any) => String(p.productId) === String(productId.value),
+            ) || {};
+        } catch {
+          // JSON 解析失败，使用默认值
+        }
+      }
+      return {
         levelId: lvl.id,
         levelName: lvl.name,
-        price: 0,
-        matchingQuantity: 0,
-        indirectReferralReward: 0,
-      }));
-    }
+        price: productInfo.price ?? 0,
+        matchingQuantity: productInfo.matchingQuantity ?? 0,
+        indirectReferralReward: productInfo.indirectReferralReward ?? 0,
+      };
+    });
     levelProductGridApi.grid.loadData(levelProductData.value);
   } catch (e) {
     console.error(e);
@@ -291,7 +310,8 @@ async function handleClosed() {
 
 <template>
   <BasicDrawer :title="title" class="!w-[900px]">
-    <!-- ========= 等级维度模式 ========= -->
+    <Spin :spinning="loading">
+      <!-- ========= 等级维度模式 ========= -->
     <template v-if="mode === 'level'">
       <div class="mb-4 text-base font-medium">基础设置</div>
       <LevelForm />
@@ -322,13 +342,11 @@ async function handleClosed() {
 
     <!-- ========= 商品维度模式 ========= -->
     <template v-else>
-      <div class="mb-4 text-base font-medium">
-        {{ productName }} - 各等级分成规则
-      </div>
-      <div class="mb-2 text-gray-500 text-sm">
-        为"{{ productName }}"配置各个会员等级对应的价格、搭配数量和间推奖励
+      <div class="mb-4 text-gray-500 text-sm">
+        为「{{ productName }}」配置各个会员等级对应的价格、搭配数量和间推奖励
       </div>
       <LevelProductGrid />
     </template>
+    </Spin>
   </BasicDrawer>
 </template>

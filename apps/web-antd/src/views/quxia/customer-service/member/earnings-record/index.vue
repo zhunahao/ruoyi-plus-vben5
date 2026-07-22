@@ -107,8 +107,8 @@ const [BasicTable, tableApi] = useVbenVxeGrid({
       </template>
       <template #sourceMember="{ row }">
         <div>
-          <div>{{ row.sourceMemberName }}</div>
-          <div class="text-gray-400 text-xs">{{ row.sourceMemberPhone }}</div>
+          <div>{{ row.memberNameSource }}</div>
+          <div class="text-gray-400 text-xs">{{ row.memberPhoneSource }}</div>
         </div>
       </template>
       <template #sourceType="{ row }">

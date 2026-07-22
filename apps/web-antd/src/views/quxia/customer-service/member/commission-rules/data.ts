@@ -73,7 +73,7 @@ export const productColumns: VxeGridProps['columns'] = [
   },
   {
     field: 'matchingQuantity',
-    title: '搭配数量',
+    title: '上单数量',
     minWidth: 120,
     editRender: {
       name: 'input',
