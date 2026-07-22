@@ -105,6 +105,12 @@ const [BasicTable, tableApi] = useVbenVxeGrid({
           <div class="text-gray-400 text-xs">总金额：{{ row.totalAmount }}</div>
         </div>
       </template>
+      <template #sourceMember="{ row }">
+        <div>
+          <div>{{ row.sourceMemberName }}</div>
+          <div class="text-gray-400 text-xs">{{ row.sourceMemberPhone }}</div>
+        </div>
+      </template>
       <template #sourceType="{ row }">
         <Tag :color="earningsTypeColorMap[row.sourceType] || 'default'">
           {{ row.sourceTypeDesc }}

@@ -42,6 +42,10 @@ export interface EarningsRecord {
   memberNameEarnings: string;
   /** 会员手机号 */
   memberPhoneEarnings: string;
+  /** 来源会员名称 */
+  memberNameSource: string;
+  /** 来源会员手机号 */
+  memberPhoneSource: string;
   /** 收益金额 */
   earningsAmount: number;
   /** 总金额 */

@@ -68,6 +68,12 @@ export const columns: VxeGridProps['columns'] = [
     minWidth: 140,
   },
   {
+    field: 'sourceMember',
+    title: '来源用户',
+    minWidth: 180,
+    slots: { default: 'sourceMember' },
+  },
+  {
     field: 'earningsAmount',
     title: '收益金额/总金额',
     width: 150,
