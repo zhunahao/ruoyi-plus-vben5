@@ -8,6 +8,8 @@ import { VbenIcon } from '@vben/icons';
 import { preferences } from '@vben/preferences';
 import { useUserStore } from '@vben/stores';
 
+import CarouselManage from './components/carousel-manage.vue';
+
 import { workspaceSchemeApi } from './api';
 
 const userStore = useUserStore();
@@ -166,6 +168,10 @@ onMounted(async () => {
           </div>
         </div>
       </div>
+    </div>
+
+    <div class="mt-6">
+      <CarouselManage />
     </div>
   </div>
 </template>
