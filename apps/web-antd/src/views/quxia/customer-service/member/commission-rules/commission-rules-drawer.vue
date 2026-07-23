@@ -289,7 +289,7 @@ async function handleConfirm() {
       );
     }
 
-    message.success($t('pages.common.saveSuccess'));
+    message.success('操作成功');
     resetInitialized();
     emit('reload');
     drawerApi.close();
