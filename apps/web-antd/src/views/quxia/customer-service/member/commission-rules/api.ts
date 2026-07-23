@@ -16,8 +16,8 @@ export const commissionRulesApi = {
   /** 保存某等级的完整分成规则 */
   saveByLevelId(levelId: number, data: CommissionRules) {
     return alovaInstance.put<boolean>(
-      `/quxia-customer-service/member/level/editCommissionRulesProduct`,
-      { levelId, ...data },
+      `/quxia-customer-service/member/level/editCommissionRules`,
+      { levelId, rules: data },
     );
   },
 

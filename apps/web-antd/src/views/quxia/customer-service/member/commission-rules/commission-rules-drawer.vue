@@ -2,7 +2,6 @@
 import { computed, ref } from 'vue';
 
 import { useVbenDrawer } from '@vben/common-ui';
-import { $t } from '@vben/locales';
 
 import { Divider, Popconfirm, Select, Spin, message } from 'antdv-next';
 
@@ -44,7 +43,6 @@ const loading = ref(false);
 // ==================== 等级模式：基础表单 ====================
 const [LevelForm, levelFormApi] = useVbenForm({
   commonConfig: {
-    componentProps: { class: 'w-full' },
     labelWidth: 160,
   },
   schema: levelFormSchema as any,
@@ -112,51 +110,66 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
   onConfirm: handleConfirm,
   async onOpenChange(isOpen) {
     if (!isOpen) return;
-    // loading.value = true;
 
-    try {
-      const data = drawerApi.getData() as {
-        mode: 'level' | 'product';
-        id: number;
-        name: string;
-      };
+    const data = drawerApi.getData() as {
+      mode: 'level' | 'product';
+      commissionRules?: string;
+      id: number;
+      name: string;
+    };
 
-      mode.value = data.mode;
-      resetInitialized();
+    mode.value = data.mode;
+    resetInitialized();
 
-      if (data.mode === 'level') {
-        levelId.value = data.id;
-        levelName.value = data.name;
-        await loadLevelData();
-      } else {
-        productId.value = data.id;
-        productName.value = data.name;
-        await loadProductData();
-      }
-
-      await markInitialized();
-    } finally {
-      loading.value = false;
+    if (data.mode === 'level') {
+      levelId.value = data.id;
+      levelName.value = data.name;
+      await loadLevelData(data.commissionRules);
+    } else {
+      productId.value = data.id;
+      productName.value = data.name;
+      await loadProductData();
     }
+
+    await markInitialized();
   },
 });
 
 // ==================== 等级模式：加载数据 ====================
-async function loadLevelData() {
+async function loadLevelData(rulesJson?: string) {
   try {
-    const res = await commissionRulesApi.getByLevelId(levelId.value);
-    if (res) {
+    loading.value = true;
+
+    // 从传入的 commissionRules JSON 解析规则，不重新查询接口
+    if (rulesJson) {
+      const rules = JSON.parse(rulesJson);
       await levelFormApi.setValues({
         healthConsultationsRequirePayment:
-          res.healthConsultationsRequirePayment ?? false,
-        needAudit: res.needAudit ?? false,
-        showWarehouse: res.showWarehouse ?? false,
-        peerLevelReward: res.peerLevelReward ?? 0,
+          rules.healthConsultationsRequirePayment ?? false,
+        needAudit: rules.needAudit ?? false,
+        showWarehouse: rules.showWarehouse ?? false,
+        peerLevelReward: rules.peerLevelReward ?? 0,
       });
-      productData.value = res.products || [];
+      productData.value = rules.products || [];
     } else {
+      await levelFormApi.setValues({
+        healthConsultationsRequirePayment: false,
+        needAudit: false,
+        showWarehouse: false,
+        peerLevelReward: 0,
+      });
       productData.value = [];
     }
+
+    // 通过接口获取商品名称填充到 productData
+    if (productData.value.length > 0) {
+      const namePromises = productData.value.map(async (p) => {
+        const info = await productInfoApi.productInfoInfo(p.productId);
+        p.productName = info?.name || `商品 #${p.productId}`;
+      });
+      await Promise.all(namePromises);
+    }
+
     productGridApi.grid.loadData(productData.value);
 
     // 加载可选产品列表
@@ -167,12 +180,22 @@ async function loadLevelData() {
     availableProducts.value = productList?.rows || [];
   } catch (e) {
     console.error(e);
+  } finally {
+    loading.value = false;
   }
 }
 
 // ==================== 商品模式：加载数据 ====================
 async function loadProductData() {
   try {
+    loading.value = true;
+
+    // 通过接口获取商品名称
+    const productInfo = await productInfoApi.productInfoInfo(productId.value);
+    if (productInfo?.name) {
+      productName.value = productInfo.name;
+    }
+
     // 从会员等级列表获取等级数据，并从 commissionRules 字段解析当前商品的配置
     const levelList = await memberLevelApi.memberLevelList({
       pageNum: 1,
@@ -207,6 +230,8 @@ async function loadProductData() {
     levelProductGridApi.grid.loadData(levelProductData.value);
   } catch (e) {
     console.error(e);
+  } finally {
+    loading.value = false;
   }
 }
 

@@ -5,45 +5,48 @@ import type { VxeGridProps } from '#/adapter/vxe-table';
  */
 export const levelFormSchema = [
   {
-    field: 'healthConsultationsRequirePayment',
+    fieldName: 'healthConsultationsRequirePayment',
     label: '咨询是否需要支付',
     component: 'Switch',
     componentProps: {
       checkedChildren: '是',
       unCheckedChildren: '否',
+      class: 'w-auto',
     },
     help: '开启后该等级会员咨询时需要支付费用',
   },
   {
-    field: 'needAudit',
+    fieldName: 'needAudit',
     label: '补货是否需要审核',
     component: 'Switch',
     componentProps: {
       checkedChildren: '是',
       unCheckedChildren: '否',
+      class: 'w-auto',
     },
     help: '开启后该等级补货需要审核',
   },
   {
-    field: 'showWarehouse',
+    fieldName: 'showWarehouse',
     label: '是否显示仓库',
     component: 'Switch',
     componentProps: {
       checkedChildren: '是',
       unCheckedChildren: '否',
+      class: 'w-auto',
     },
     help: '开启后该等级显示仓库功能',
   },
   {
-    field: 'peerLevelReward',
+    fieldName: 'peerLevelReward',
     label: '平推奖励',
     component: 'InputNumber',
     componentProps: {
       min: 0,
       precision: 2,
       style: { width: '100%' },
-      addonAfter: '元',
     },
+    suffix: '元',
     help: '推荐平级以上会员上单时，推荐人获得的奖励金额',
   },
 ];
@@ -73,7 +76,7 @@ export const productColumns: VxeGridProps['columns'] = [
   },
   {
     field: 'matchingQuantity',
-    title: '上单数量',
+    title: '上单补货数量',
     minWidth: 120,
     editRender: {
       name: 'input',
@@ -122,7 +125,7 @@ export const levelProductColumns: VxeGridProps['columns'] = [
   },
   {
     field: 'matchingQuantity',
-    title: '搭配数量',
+    title: '上单补货数量',
     minWidth: 120,
     editRender: {
       name: 'input',

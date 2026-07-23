@@ -3,7 +3,7 @@ import type { VbenFormProps } from '@vben/common-ui';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 import type { MemberLevel } from '../api/member-level/model';
 import { Page, useVbenDrawer } from '@vben/common-ui';
-import { Popconfirm, Space } from 'antdv-next';
+import { Image, Popconfirm, Space, Spin } from 'antdv-next';
 import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
 
 import { memberLevelApi } from '../api/member-level';
@@ -111,6 +111,7 @@ function handleCommissionRules(row: MemberLevel) {
     mode: 'level',
     id: row.id,
     name: row.name,
+    commissionRules: row.commissionRules,
   });
   commissionRulesDrawerApi.open();
 }

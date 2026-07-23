@@ -1,8 +1,6 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue';
 
-import type Cropper from 'cropperjs';
-
 import { computed, ref } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
