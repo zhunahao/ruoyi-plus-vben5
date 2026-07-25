@@ -6,13 +6,15 @@ import { computed, ref } from 'vue';
 import { useVbenModal } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 import { buildUUID } from '@vben/utils';
+
 import { Button, Spin, Upload } from 'antdv-next';
 
 import { uploadApi } from '#/api';
 import CropperImage from '#/components/cropper/src/cropper.vue';
 import { dataURLtoBlob } from '#/utils/file/base64Conver';
 
-type UploadApiParams = { file: Blob; filename: string; name: string };
+
+type UploadApiParams = { file: File; maxHeight?: number; maxWidth?: number; ossConfName: string; };
 
 defineOptions({ name: 'CarouselImageUpload' });
 
@@ -23,6 +25,12 @@ const props = defineProps({
     default: undefined,
     type: Function as PropType<(params: UploadApiParams) => Promise<any>>,
   },
+  /** OSS配置名称 */
+  ossConfName: { default: 'minio', type: String },
+  /** 最大宽度 */
+  maxWidth: { default: 500, type: Number },
+  /** 最大高度 */
+  maxHeight: { default: 350, type: Number },
 });
 
 const emit = defineEmits(['update:modelValue', 'uploadSuccess', 'uploadError']);
@@ -35,6 +43,14 @@ const cropperReady = ref(false);
 
 const prefixCls = 'carousel-upload';
 
+// 动态参数（通过 modalApi.setData 传入）
+const dynamicParams = ref<{
+  maxHeight?: number;
+  maxWidth?: number;
+  ossConfName?: string;
+  uploadApi?: (params: UploadApiParams) => Promise<any>;
+}>({});
+
 const [BasicModal, modalApi] = useVbenModal({
   cancelText: $t('common.cancel'),
   confirmText: $t('common.confirm'),
@@ -45,6 +61,8 @@ const [BasicModal, modalApi] = useVbenModal({
       previewSource.value = '';
       cropperReady.value = false;
       filename = '';
+      // 获取动态传入的参数
+      dynamicParams.value = modalApi.getData() || {};
       if (props.modelValue) {
         src.value = props.modelValue;
       }
@@ -88,13 +106,41 @@ async function handleConfirm() {
     window.message?.warning?.('未选择图片');
     return;
   }
-  const uploadFn = props.uploadApi || defaultUpload;
   const blob = dataURLtoBlob(previewSource.value);
+  const fileObj = new File([blob], filename || `${buildUUID()}.png`);
+  
+  let result: any;
   try {
     uploading.value = true;
-    const result = await uploadFn({ file: blob, filename, name: 'file' });
+    // 使用动态参数，优先于 props 默认值
+    const currentUploadApi = dynamicParams.value.uploadApi || props.uploadApi;
+    const currentOssConfName = dynamicParams.value.ossConfName || props.ossConfName;
+    const currentMaxWidth = dynamicParams.value.maxWidth ?? props.maxWidth;
+    const currentMaxHeight = dynamicParams.value.maxHeight ?? props.maxHeight;
+
+    if (currentUploadApi) {
+      // 使用传入的接口（workspaceSchemeApi.uploadImage 格式）
+      result = await currentUploadApi({
+        ossConfName: currentOssConfName,
+        file: fileObj,
+        maxWidth: currentMaxWidth,
+        maxHeight: currentMaxHeight,
+      });
+    } else {
+      // 使用项目默认上传接口
+      result = await uploadApi(fileObj, {
+        otherData: {
+          ossConfName: currentOssConfName,
+          maxWidth: currentMaxWidth,
+          maxHeight: currentMaxHeight,
+        },
+      });
+    }
+    // console.log('result:',result);
     const uploadedUrl = result?.url || result?.data?.url || result;
-    const uploadedFileName = result?.fileName || result?.data?.fileName || '';
+    const uploadedFileName = result?.fileName || result?.data?.fileName || filename || '';
+    // console.log('uploadedUrl:',uploadedUrl);
+    // console.log('uploadedFileName:',uploadedFileName);
     emit('update:modelValue', uploadedUrl);
     emit('uploadSuccess', {
       data: uploadedUrl,
@@ -109,16 +155,6 @@ async function handleConfirm() {
   } finally {
     uploading.value = false;
   }
-}
-
-async function defaultUpload({ file, filename: fname }: UploadApiParams) {
-  const fileObj =
-    typeof file === 'string'
-      ? file
-      : fname
-        ? new File([file], fname)
-        : new File([file], `${buildUUID()}.png`);
-  return await uploadApi(fileObj);
 }
 </script>
 
@@ -142,6 +178,7 @@ async function defaultUpload({ file, filename: fname }: UploadApiParams) {
             :src="src"
             height="320px"
             class="w-full"
+            :real-time-preview="true"
             @cropend="handleCropEnd"
             @ready="handleCropperReady"
           />

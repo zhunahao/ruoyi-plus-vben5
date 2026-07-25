@@ -23,7 +23,7 @@ export const workspaceSchemeApi = {
   }) {
     const formData = new FormData();
     formData.append('ossConfName', data.ossConfName);
-    formData.append('file', data.file);
+    formData.append('file', data.file, data.file.name);
     if (data.maxWidth) {
       formData.append('maxWidth', String(data.maxWidth));
     }
@@ -33,6 +33,9 @@ export const workspaceSchemeApi = {
     return alovaInstance.post<{ url: string; fileName: string }>(
       '/quxia-oss/app/oss/uploadWithConfig',
       formData,
+      {
+        encrypt: false,
+      },
     );
   },
 }

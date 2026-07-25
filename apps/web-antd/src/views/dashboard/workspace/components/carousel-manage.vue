@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 
 import { useVbenDrawer, useVbenModal } from '@vben/common-ui';
 import { $t } from '@vben/locales';
+
 import { Button, Image, Popconfirm, Spin } from 'antdv-next';
 
 import { useVbenForm } from '#/adapter/form';
@@ -12,6 +13,8 @@ import {
   dictDataRemove,
   dictDataUpdate,
 } from '#/api/system/dict/dict-data';
+
+import { workspaceSchemeApi } from '../api';
 import CarouselImageUpload from './carousel-image-upload.vue';
 
 const DICT_TYPE = 'app_home_imgs';
@@ -38,18 +41,29 @@ const [ImageUpload, imageUploadApi] = useVbenModal({
 });
 
 // 上传成功后，更新 URL 并打开抽屉填写信息
-function handleUploadSuccess({ data, fileName }: any) {
+async function handleUploadSuccess({ data, fileName }: any) {
+  console.log(data, fileName);
   uploadedUrl.value = data;
   // 文件名去掉后缀作为图片名称
   const label = fileName ? fileName.replace(/\.[^.]+$/, '') : '';
-  formApi.setValues({ dictValue: data, dictLabel: label });
   // 排序默认取列表最大值+1
   const maxSort = imageList.value.reduce((max, r) => Math.max(max, r.dictSort), 0);
-  formApi.setValues({ dictSort: maxSort + 1 });
-  if (!drawerOpen.value) {
-    // 新增模式：打开抽屉编辑图片信息
+  
+  // 更新抽屉数据，无论抽屉是否已打开
+  const drawerData = drawerApi.getData() as any;
+  drawerApi.setData({ ...drawerData, dictValue: data, dictLabel: label, dictSort: maxSort + 1 });
+  
+  if (drawerOpen.value) {
+    // 编辑模式：抽屉已打开，只更新图片URL，保留现有的图片名称和排序
+    const currentFormValues = await formApi.getValues();
+    await formApi.setValues({ 
+      dictValue: data, 
+      dictLabel: currentFormValues?.dictLabel || label,
+      dictSort: currentFormValues?.dictSort || (maxSort + 1),
+    });
+  } else {
+    // 新增模式：打开抽屉编辑图片信息，表单值在 onOpenChange 中设置
     skipUrlReset.value = true;
-    drawerApi.setData({});
     drawerApi.open();
   }
 }
@@ -105,10 +119,11 @@ const [BasicForm, formApi] = useVbenForm({
       rules: 'required',
     },
     {
-      component: 'Input',
+      component: 'Textarea',
       fieldName: 'dictValue',
       defaultValue: '',
-      componentProps: { type: 'hidden' },
+      label: '图片URL',
+      rules: 'required',
     },
   ],
   showDefaultActions: false,
@@ -125,9 +140,13 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
     }
     drawerApi.drawerLoading(true);
 
-    const data = drawerApi.getData() as { dictCode?: number } | undefined;
+    const data = drawerApi.getData() as undefined | { dictCode?: number };
     isUpdate.value = !!data?.dictCode;
-
+    console.log('--------------打开抽屉')
+    console.log('data:',data)
+    console.log('isUpdate:',isUpdate.value)
+    // 使用局部变量保存状态，防止后续条件判断时状态已被修改
+    let wasSkipReset = false;
     if (isUpdate.value && data?.dictCode) {
       // 编辑时从已有列表找到数据回显
       const item = imageList.value.find((r) => r.dictCode === data.dictCode);
@@ -139,14 +158,26 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
         });
         uploadedUrl.value = item.dictValue;
       }
-    } else if (!skipUrlReset.value) {
+    } else if (skipUrlReset.value) {
+      // 使用局部变量保存状态，防止后续条件判断时状态已被修改
+      wasSkipReset = skipUrlReset.value;
+      skipUrlReset.value = false;
+      // 从抽屉数据中获取上传成功后的值，应用到表单
+      const uploadData = drawerApi.getData() as any;
+      if (uploadData?.dictValue) {
+        await formApi.setValues({
+          dictValue: uploadData.dictValue,
+          dictLabel: uploadData.dictLabel || '',
+          dictSort: uploadData.dictSort || 1,
+        });
+        uploadedUrl.value = uploadData.dictValue;
+      }
+    } else {
       await formApi.resetForm();
       uploadedUrl.value = '';
-    } else {
-      skipUrlReset.value = false;
     }
-    // 新建时排序默认取最大值+1
-    if (!isUpdate.value) {
+    // 新建时排序默认取最大值+1（skipUrlReset 分支已经从上传数据中获取了排序值）
+    if (!isUpdate.value && !wasSkipReset) {
       const maxSort = imageList.value.reduce((max, r) => Math.max(max, r.dictSort), 0);
       await formApi.setValues({ dictSort: maxSort + 1 });
     }
@@ -260,7 +291,7 @@ fetchList();
         <!-- 行末图片上传入口 -->
         <div
           class="flex h-40 w-48 flex-shrink-0 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 transition-all hover:border-blue-400 hover:bg-blue-50"
-          @click="imageUploadApi.open()"
+          @click="imageUploadApi.setData({ uploadApi: workspaceSchemeApi.uploadImage, ossConfName: 'image' }).open()"
         >
           <div class="mb-1 text-3xl text-gray-400">+</div>
           <span class="text-sm text-gray-500">新增轮播图</span>
@@ -283,7 +314,7 @@ fetchList();
             </div>
             <div
               class="flex h-32 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 transition-colors hover:border-blue-400 hover:bg-blue-50"
-              @click="imageUploadApi.open()"
+              @click="imageUploadApi.setData({ uploadApi: workspaceSchemeApi.uploadImage }).open()"
             >
               <div class="text-center text-gray-400">
                 <div class="text-2xl">+</div>
