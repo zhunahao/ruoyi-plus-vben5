@@ -30,8 +30,6 @@ interface ImageItem {
 const loading = ref(false);
 const imageList = ref<ImageItem[]>([]);
 const uploadedUrl = ref('');
-const drawerOpen = ref(false);
-const skipUrlReset = ref(false);
 const previewVisible = ref(false);
 const previewImage = ref('');
 
@@ -40,32 +38,34 @@ const [ImageUpload, imageUploadApi] = useVbenModal({
   connectedComponent: CarouselImageUpload,
 });
 
-// 上传成功后，更新 URL 并打开抽屉填写信息
+// 上传成功后，更新 URL 和表单值
 async function handleUploadSuccess({ data, fileName }: any) {
   console.log(data, fileName);
   uploadedUrl.value = data;
   // 文件名去掉后缀作为图片名称
   const label = fileName ? fileName.replace(/\.[^.]+$/, '') : '';
   // 排序默认取列表最大值+1
-  const maxSort = imageList.value.reduce((max, r) => Math.max(max, r.dictSort), 0);
-  
-  // 更新抽屉数据，无论抽屉是否已打开
-  const drawerData = drawerApi.getData() as any;
-  drawerApi.setData({ ...drawerData, dictValue: data, dictLabel: label, dictSort: maxSort + 1 });
-  
-  if (drawerOpen.value) {
-    // 编辑模式：抽屉已打开，只更新图片URL，保留现有的图片名称和排序
-    const currentFormValues = await formApi.getValues();
-    await formApi.setValues({ 
-      dictValue: data, 
-      dictLabel: currentFormValues?.dictLabel || label,
-      dictSort: currentFormValues?.dictSort || (maxSort + 1),
-    });
-  } else {
-    // 新增模式：打开抽屉编辑图片信息，表单值在 onOpenChange 中设置
-    skipUrlReset.value = true;
-    drawerApi.open();
+  let maxSort = 0;
+  for (const item of imageList.value) {
+    maxSort = Math.max(maxSort, item.dictSort || 0);
   }
+  
+  // 更新抽屉数据：只更新 dictValue，保留现有的 dictLabel 和 dictSort
+  const drawerData = drawerApi.getData() as any;
+  drawerApi.setData({ 
+    ...drawerData, 
+    dictValue: data, 
+    dictLabel: drawerData?.dictLabel || label, 
+    dictSort: drawerData?.dictSort || (maxSort + 1) 
+  });
+  
+  // 更新表单值：如果是编辑模式，保留现有的图片名称和排序；如果是新增模式，使用新值
+  const currentFormValues = await formApi.getValues();
+  await formApi.setValues({ 
+    dictValue: data, 
+    dictLabel: currentFormValues?.dictLabel || label,
+    dictSort: currentFormValues?.dictSort || (maxSort + 1),
+  });
 }
 
 // ---------- 列表 ----------
@@ -134,7 +134,6 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
   onConfirm: handleConfirm,
   onClosed: handleClosed,
   async onOpenChange(isOpen) {
-    drawerOpen.value = isOpen;
     if (!isOpen) {
       return null;
     }
@@ -145,8 +144,6 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
     console.log('--------------打开抽屉')
     console.log('data:',data)
     console.log('isUpdate:',isUpdate.value)
-    // 使用局部变量保存状态，防止后续条件判断时状态已被修改
-    let wasSkipReset = false;
     if (isUpdate.value && data?.dictCode) {
       // 编辑时从已有列表找到数据回显
       const item = imageList.value.find((r) => r.dictCode === data.dictCode);
@@ -158,27 +155,14 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
         });
         uploadedUrl.value = item.dictValue;
       }
-    } else if (skipUrlReset.value) {
-      // 使用局部变量保存状态，防止后续条件判断时状态已被修改
-      wasSkipReset = skipUrlReset.value;
-      skipUrlReset.value = false;
-      // 从抽屉数据中获取上传成功后的值，应用到表单
-      const uploadData = drawerApi.getData() as any;
-      if (uploadData?.dictValue) {
-        await formApi.setValues({
-          dictValue: uploadData.dictValue,
-          dictLabel: uploadData.dictLabel || '',
-          dictSort: uploadData.dictSort || 1,
-        });
-        uploadedUrl.value = uploadData.dictValue;
-      }
     } else {
+      // 新增模式：重置表单，设置默认排序
       await formApi.resetForm();
       uploadedUrl.value = '';
-    }
-    // 新建时排序默认取最大值+1（skipUrlReset 分支已经从上传数据中获取了排序值）
-    if (!isUpdate.value && !wasSkipReset) {
-      const maxSort = imageList.value.reduce((max, r) => Math.max(max, r.dictSort), 0);
+      let maxSort = 0;
+      for (const item of imageList.value) {
+        maxSort = Math.max(maxSort, item.dictSort || 0);
+      }
       await formApi.setValues({ dictSort: maxSort + 1 });
     }
 
@@ -227,6 +211,12 @@ async function handleConfirm() {
 async function handleClosed() {
   await formApi.resetForm();
   uploadedUrl.value = '';
+}
+
+// 删除图片
+async function handleRemoveImage() {
+  uploadedUrl.value = '';
+  await formApi.setValues({ dictValue: '' });
 }
 
 function handleOpenEdit(row: ImageItem) {
@@ -288,10 +278,10 @@ fetchList();
           </div>
         </div>
 
-        <!-- 行末图片上传入口 -->
+        <!-- 行末新增入口 -->
         <div
           class="flex h-40 w-48 flex-shrink-0 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 transition-all hover:border-blue-400 hover:bg-blue-50"
-          @click="imageUploadApi.setData({ uploadApi: workspaceSchemeApi.uploadImage, ossConfName: 'image' }).open()"
+          @click="drawerApi.open()"
         >
           <div class="mb-1 text-3xl text-gray-400">+</div>
           <span class="text-sm text-gray-500">新增轮播图</span>
@@ -301,29 +291,55 @@ fetchList();
 
     <!-- 新增/编辑抽屉 -->
     <BasicDrawer :title="title" class="w-[560px]">
-      <BasicForm>
-        <template #default-actions>
-          <div class="col-span-2 mb-4">
-            <div class="mb-1 text-sm text-gray-700">轮播图片</div>
-            <div v-if="uploadedUrl" class="mb-3">
-              <img
-                :src="uploadedUrl"
-                class="h-40 w-full rounded-lg border border-gray-200 object-cover"
-                alt="预览"
-              />
-            </div>
-            <div
-              class="flex h-32 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 transition-colors hover:border-blue-400 hover:bg-blue-50"
-              @click="imageUploadApi.setData({ uploadApi: workspaceSchemeApi.uploadImage }).open()"
-            >
-              <div class="text-center text-gray-400">
-                <div class="text-2xl">+</div>
-                <span class="text-sm">{{ uploadedUrl ? '重新选择图片' : '选择图片' }}</span>
-              </div>
+      <div>
+        <!-- 图片上传区域 -->
+        <div class="mb-4">
+          <div class="mb-2 text-sm font-medium text-gray-700">轮播图片</div>
+          
+          <!-- 已上传图片展示 -->
+          <div v-if="uploadedUrl" class="relative overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
+            <img
+              :src="uploadedUrl"
+              class="h-48 w-full object-cover"
+              :alt="uploadedUrl"
+              @click="handlePreview(uploadedUrl)"
+            />
+            <!-- 悬浮操作层 -->
+            <div class="absolute inset-0 flex items-center justify-center gap-3 bg-black/40 opacity-0 transition-opacity hover:opacity-100">
+              <Button
+                size="small"
+                type="primary"
+                @click.stop="imageUploadApi.setData({ uploadApi: workspaceSchemeApi.uploadImage, ossConfName: 'image', maxWidth: 720 }).open()"
+              >
+                重新上传
+              </Button>
+              <Button
+                size="small"
+                danger
+                @click.stop="handleRemoveImage"
+              >
+                删除图片
+              </Button>
             </div>
           </div>
-        </template>
-      </BasicForm>
+          
+          <!-- 未上传图片状态 -->
+          <div
+            v-else
+            class="flex h-48 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 transition-all hover:border-blue-400 hover:bg-blue-50"
+            @click="imageUploadApi.setData({ uploadApi: workspaceSchemeApi.uploadImage, ossConfName: 'image', maxWidth: 720 }).open()"
+          >
+            <div class="mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-gray-200">
+              <span class="text-2xl text-gray-400">+</span>
+            </div>
+            <span class="text-sm text-gray-500">点击上传轮播图片</span>
+            <span class="mt-1 text-xs text-gray-400">支持 JPG、PNG 格式，建议尺寸 720x350</span>
+          </div>
+        </div>
+        
+        <!-- 表单 -->
+        <BasicForm />
+      </div>
     </BasicDrawer>
     <!-- 图片上传弹窗 -->
     <ImageUpload
