@@ -1,4 +1,4 @@
-import type { WithdrawOrderInfo, WithdrawOrderListQuery } from './model';
+import type { ProcessWithdrawOrderRequest, WithdrawOrderInfo, WithdrawOrderListQuery } from './model';
 
 import type { PageResult } from '#/api/common';
 
@@ -24,15 +24,13 @@ export const orderWithdrawApi = {
 
   /**
    * 处理提现订单
-   * @param id 提现订单ID
+   * @param params 处理参数
    * @returns 处理结果
    */
-  processWithdrawOrder: async (id: string) => {
+  processWithdrawOrder: async (params: ProcessWithdrawOrderRequest) => {
     return alovaInstance.post<WithdrawOrderInfo>(
       '/quxia-customer-service/finance/withdraw/deal',
-      {
-        id,
-      },
+      params,
     );
   },
 };

@@ -21,14 +21,11 @@ export const columns: VxeGridProps['columns'] = [
     title: '订单编号',
     minWidth: 180,
   },
-  // {
-  //   field: 'userName',
-  //   title: '用户',
-  //   minWidth: 100,
-  //   formatter({ row }) {
-  //     return `${row.userName}<br/>${row.phone}`;
-  //   },
-  // },
+  {
+    field: 'memberName',
+    title: '用户',
+    minWidth: 100
+  },
   {
     field: 'amount',
     title: '提现金额',

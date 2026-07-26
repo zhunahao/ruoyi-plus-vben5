@@ -7,16 +7,18 @@ import type {
   OrderListQuery,
 } from '#/views/quxia/customer-service/member/api/order-pick/model';
 
+import { ref } from 'vue';
+
 import { Page, useVbenModal } from '@vben/common-ui';
 
 import { Segmented, Space } from 'antdv-next';
-import { ref } from 'vue';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { orderPickApi } from '#/views/quxia/customer-service/member/api/order-pick';
 import { copyToClipboard } from '#/views/quxia/utils/clipboard';
 
 import { columns, querySchema } from './data';
+import orderRejectModal from './order-reject-modal.vue';
 import orderShipModal from './order-ship-modal.vue';
 
 const formOptions: VbenFormProps = {
@@ -81,6 +83,10 @@ const [OrderShipModal, shipModalApi] = useVbenModal({
   connectedComponent: orderShipModal,
 });
 
+const [OrderRejectModal, orderRejectModalApi] = useVbenModal({
+  connectedComponent: orderRejectModal,
+});
+
 const statusOptions = [
   { label: '待处理', value: 'pending' },
   { label: '处理中', value: 'shipped' },
@@ -88,7 +94,7 @@ const statusOptions = [
 ];
 const currentStatus = ref('pending');
 
-function onStatusChange(value: string | number) {
+function onStatusChange(value: number | string) {
   currentStatus.value = value as string;
   tableApi.formApi.setValues({ status: value });
   tableApi.query();
@@ -97,6 +103,10 @@ function onStatusChange(value: string | number) {
 function handleSetShip(row: OrderInfo) {
   shipModalApi.setData({ orderId: row.id, orderNo: row.orderNo });
   shipModalApi.open();
+}
+
+function handleReject(row: OrderInfo) {
+  orderRejectModalApi.setData({ id: row.id }).open();
 }
 
 function copyRecipientAndItems(row: OrderInfo) {
@@ -156,9 +166,18 @@ function copyRecipientAndItems(row: OrderInfo) {
           >
             发货
           </action-button>
+          <action-button
+            v-if="row.status === 'pending'"
+            size="small"
+            type="default"
+            @click="handleReject(row)"
+          >
+            驳回
+          </action-button>
         </Space>
       </template>
     </BasicTable>
     <OrderShipModal @reload="tableApi.query()" />
+    <OrderRejectModal @reload="tableApi.query()" />
   </Page>
 </template>

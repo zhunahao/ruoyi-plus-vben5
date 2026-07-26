@@ -1,4 +1,4 @@
-import type { OrderInfo, OrderListQuery, SetShipParam } from './model';
+import type { OrderInfo, OrderListQuery, RejectOrderParam, SetShipParam } from './model';
 
 import type { PageResult } from '#/api/common';
 
@@ -29,5 +29,14 @@ export const orderPickApi = {
    */
   setShip: async (data: SetShipParam) => {
     return alovaInstance.post('/quxia-customer-service/inventory/ship', data);
+  },
+
+  /**
+   * 驳回订单
+   * @param params 驳回参数
+   * @returns 操作结果
+   */
+  rejectOrder: async (params: RejectOrderParam) => {
+    return alovaInstance.post('/quxia-customer-service/inventory/rejected', params);
   },
 };

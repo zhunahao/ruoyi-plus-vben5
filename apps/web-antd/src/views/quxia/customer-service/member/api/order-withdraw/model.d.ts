@@ -51,11 +51,11 @@ export interface WithdrawOrderInfo {
   /**
    * 用户名
    */
-  userName: string;
+  memberName: string;
   /**
    * 手机号
    */
-  phone: string;
+  memberPhone: string;
   /**
    * 提现金额
    */
@@ -130,4 +130,22 @@ export interface WithdrawOrderListResponse {
    * 订单列表
    */
   items: WithdrawOrderInfo[];
+}
+
+/**
+ * 处理提现订单参数
+ */
+export interface ProcessWithdrawOrderRequest {
+  /**
+   * 订单ID
+   */
+  id: string;
+  /**
+   * 状态（pending: 待审核, rejected: 已驳回, completed: 已完成）
+   */
+  status?: string;
+  /**
+   * 审核备注
+   */
+  reviewNote?: string;
 }
