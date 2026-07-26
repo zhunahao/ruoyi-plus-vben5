@@ -1,18 +1,17 @@
 <script setup lang="ts">
-import type { Role } from '#/api/system/user/model';
 
-import { computed, h, onMounted, ref } from 'vue';
+import type { ID } from '#/api/common';
+
+import { computed, ref } from 'vue';
 
 import { useVbenDrawer } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 import { cloneDeep } from '@vben/utils';
 
 import { useVbenForm } from '#/adapter/form';
-
 import { defaultFormValueGetter, useBeforeCloseDiff } from '#/utils/popup';
 
 import { weightExpertApi } from '../api/weight-expert';
-
 import { drawerSchema } from './data';
 
 const emit = defineEmits<{ reload: [] }>();
@@ -52,12 +51,12 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
     }
     drawerApi.drawerLoading(true);
 
-    const { id } = drawerApi.getData() as { id?: number | string };
+    const { id } = drawerApi.getData() as { id: ID };
     console.log('id:',id);
     isUpdate.value = !!id;
     if (isUpdate.value) {
       // 更新 && 赋值
-      weightExpertApi.weightExpertInfo(Number(id)).then((res) => {
+      weightExpertApi.weightExpertInfo(id).then((res) => {
         formApi.setValues(res);
       });
     }

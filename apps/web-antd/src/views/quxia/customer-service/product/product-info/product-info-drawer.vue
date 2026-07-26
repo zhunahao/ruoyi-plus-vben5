@@ -1,5 +1,7 @@
 <script setup lang="ts">
 
+import type { ID } from '#/api/common';
+
 import { computed, ref } from 'vue';
 
 import { useVbenDrawer } from '@vben/common-ui';
@@ -8,11 +10,9 @@ import { cloneDeep } from '@vben/utils';
 
 import { useVbenForm } from '#/adapter/form';
 import { Tinymce } from '#/components/tinymce';
-
 import { defaultFormValueGetter, useBeforeCloseDiff } from '#/utils/popup';
 
 import { productInfoApi } from '../api/product-info';
-
 import { drawerSchema } from './data';
 
 const emit = defineEmits<{ reload: [] }>();
@@ -52,12 +52,12 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
     }
     drawerApi.drawerLoading(true);
 
-    const { id } = drawerApi.getData() as { id?: number | string };
+    const { id } = drawerApi.getData() as { id: ID };
     console.log('id:', id);
     isUpdate.value = !!id;
     if (isUpdate.value) {
       // 更新 && 赋值
-      productInfoApi.productInfoInfo(Number(id)).then((res) => {
+      productInfoApi.productInfoInfo(id).then((res) => {
         formApi.setValues(res);
       });
     }

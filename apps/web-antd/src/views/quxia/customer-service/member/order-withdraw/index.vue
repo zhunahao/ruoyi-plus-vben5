@@ -9,13 +9,21 @@ import type {
 
 import { Page } from '@vben/common-ui';
 
-import { Modal,Space } from 'antdv-next';
+import { Modal, Segmented, Space } from 'antdv-next';
+import { ref } from 'vue';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { orderWithdrawApi } from '#/views/quxia/customer-service/member/api/order-withdraw';
 import { copyToClipboard } from '#/views/quxia/utils/clipboard';
 
 import { columns, querySchema } from './data';
+
+const activeStatus = ref<string>('pending');
+
+const statusOptions = [
+  { label: '待处理', value: 'pending' },
+  { label: '已处理', value: 'completed' },
+];
 
 const formOptions: VbenFormProps = {
   schema: querySchema(),
@@ -50,6 +58,7 @@ const gridOptions: VxeGridProps = {
         const params: WithdrawOrderListQuery = {
           pageNum: page.currentPage,
           pageSize: page.pageSize,
+          status: activeStatus.value,
           ...formValues,
         };
         return await orderWithdrawApi.getWithdrawOrderList(params);
@@ -72,6 +81,11 @@ const [BasicTable, tableApi] = useVbenVxeGrid({
   formOptions,
   gridOptions,
 });
+
+function handleStatusChange(value: string | number) {
+  activeStatus.value = String(value);
+  tableApi.query();
+}
 
 async function handleProcess(row: WithdrawOrderInfo) {
   Modal.confirm({
@@ -97,7 +111,13 @@ function copyAccount(row: WithdrawOrderInfo) {
   <Page :auto-content-height="true">
     <BasicTable class="flex-1 overflow-hidden" table-title="提现订单列表">
       <template #toolbar-tools>
-        <Space />
+        <Space>
+          <Segmented
+            v-model:value="activeStatus"
+            :options="statusOptions"
+            @change="handleStatusChange"
+          />
+        </Space>
       </template>
       <template #withdraw-cell="{ row }">
         <div
