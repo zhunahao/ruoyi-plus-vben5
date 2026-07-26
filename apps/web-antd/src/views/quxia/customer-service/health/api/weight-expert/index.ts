@@ -1,6 +1,6 @@
 import type { WeightExpert, WeightExpertListParams } from './model';
 
-import type { ID, IDS, PageQuery, PageResult } from '#/api/common';
+import type { ID, IDS, PageResult } from '#/api/common';
 
 import { alovaInstance } from '#/utils/http';
 
@@ -16,7 +16,7 @@ export const weightExpertApi = {
       },
     );
   },
-  weightExpertInfo(id: number) {
+  weightExpertInfo(id: ID) {
     return alovaInstance.get<WeightExpert>(
       `/quxia-customer-service/health/weight/expert/info/${id}`
     );

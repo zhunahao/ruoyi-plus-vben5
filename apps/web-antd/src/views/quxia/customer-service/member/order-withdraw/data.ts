@@ -8,18 +8,6 @@ export const querySchema: FormSchemaGetter = () => [
     label: '订单编号',
   },
   {
-    component: 'Select',
-    componentProps: {
-      options: [
-        { label: '全部', value: '' },
-        { label: '待处理', value: 'pending' },
-        { label: '已完成', value: 'completed' }
-      ],
-    },
-    fieldName: 'status',
-    label: '订单状态',
-  },
-  {
     component: 'RangePicker',
     fieldName: 'createTime',
     label: '创建时间',
@@ -33,14 +21,11 @@ export const columns: VxeGridProps['columns'] = [
     title: '订单编号',
     minWidth: 180,
   },
-  // {
-  //   field: 'userName',
-  //   title: '用户',
-  //   minWidth: 100,
-  //   formatter({ row }) {
-  //     return `${row.userName}<br/>${row.phone}`;
-  //   },
-  // },
+  {
+    field: 'memberName',
+    title: '用户',
+    minWidth: 100
+  },
   {
     field: 'amount',
     title: '提现金额',

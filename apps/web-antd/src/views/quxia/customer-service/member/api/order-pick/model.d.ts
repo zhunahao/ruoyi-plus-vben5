@@ -127,3 +127,21 @@ export interface SetShipParam {
    */
   logisticsNo: string;
 }
+
+/**
+ * 驳回订单参数
+ */
+export interface RejectOrderParam {
+  /**
+   * 订单ID
+   */
+  id: string;
+  /**
+   * 状态（pending: 待审核, rejected: 已驳回, completed: 已完成）
+   */
+  status?: string;
+  /**
+   * 审核备注
+   */
+  reviewNote?: string;
+}

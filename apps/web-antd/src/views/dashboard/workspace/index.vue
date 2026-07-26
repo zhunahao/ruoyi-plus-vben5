@@ -8,6 +8,8 @@ import { VbenIcon } from '@vben/icons';
 import { preferences } from '@vben/preferences';
 import { useUserStore } from '@vben/stores';
 
+import CarouselManage from './components/carousel-manage.vue';
+
 import { workspaceSchemeApi } from './api';
 
 const userStore = useUserStore();
@@ -110,7 +112,7 @@ onMounted(async () => {
       },
       {
         key: 'momentsImgNum',
-        label: '朋友圈图片',
+        label: '今日朋友圈图片',
         value: Number(data.momentsImgNum || 0),
         icon: 'ant-design:picture-outlined',
         color: '#722ed1',
@@ -118,7 +120,7 @@ onMounted(async () => {
       },
       {
         key: 'momentsVideoNum',
-        label: '朋友圈视频',
+        label: '今日朋友圈视频',
         value: Number(data.momentsVideoNum || 0),
         icon: 'ant-design:video-camera-outlined',
         color: '#eb2f96',
@@ -166,6 +168,10 @@ onMounted(async () => {
           </div>
         </div>
       </div>
+    </div>
+
+    <div class="mt-6">
+      <CarouselManage />
     </div>
   </div>
 </template>

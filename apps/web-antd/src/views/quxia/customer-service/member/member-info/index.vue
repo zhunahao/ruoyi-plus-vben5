@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import type { VbenFormProps } from '@vben/common-ui';
 import type { Recordable } from '@vben/types';
-import type { VxeGridProps } from '#/adapter/vxe-table';
+
 import type { MemberFinanceResponse, MemberLevelOption } from '../api/member-info/model';
 
-import { Page, useVbenDrawer, useVbenModal } from '@vben/common-ui';
+import type { VxeGridProps } from '#/adapter/vxe-table';
+
 import { ref, watch } from 'vue';
 
-import { Space, Statistic } from 'antdv-next';
+import { Page, useVbenDrawer, useVbenModal } from '@vben/common-ui';
+
+import { Space } from 'antdv-next';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 
@@ -15,10 +18,10 @@ import { memberApi } from '../api/member-info';
 import { columns, querySchema } from './data';
 import memberAddModal from './member-add-modal.vue';
 import memberEditModal from './member-edit-modal.vue';
+import memberInventoryAdjustDrawer from './member-inventory-adjust-drawer.vue';
+import memberInventoryDrawer from './member-inventory-drawer.vue';
 import memberRechargeModal from './member-recharge-modal.vue';
 import memberRechargeWithdrawDrawer from './member-recharge-withdraw-drawer.vue';
-import memberInventoryDrawer from './member-inventory-drawer.vue';
-import memberInventoryAdjustDrawer from './member-inventory-adjust-drawer.vue';
 import parentMemberDrawer from './parent-member-drawer.vue';
 
 const [MemberAddModal, addModalApi] = useVbenModal({
@@ -171,7 +174,7 @@ function handleViewInventory(row: Recordable<number>) {
 <template>
   <Page :auto-content-height="true">
     <BasicTable table-title="会员列表">
-      <template #toolbar-actions>
+      <!-- <template #toolbar-actions>
         <Space class="ml-[40px]">
           <Statistic title="总余额(元)" :value="memberFinance.totalBalance" />
         </Space>
@@ -183,7 +186,7 @@ function handleViewInventory(row: Recordable<number>) {
           <span v-for="item in memberFinance.inventorySums" :key="item.productName">{{ item.productName }}：{{
             item.totalQuantity }}</span>
         </Space>
-      </template>
+      </template> -->
       <template #toolbar-tools>
         <Space>
           <a-button type="primary" @click="handleAdd">新增</a-button>

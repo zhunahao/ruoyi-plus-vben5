@@ -7,15 +7,25 @@ import type {
   WithdrawOrderListQuery,
 } from '#/views/quxia/customer-service/member/api/order-withdraw/model';
 
-import { Page } from '@vben/common-ui';
+import { ref } from 'vue';
 
-import { Modal,Space } from 'antdv-next';
+import { Page, useVbenModal } from '@vben/common-ui';
+
+import { Modal, Segmented, Space } from 'antdv-next';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { orderWithdrawApi } from '#/views/quxia/customer-service/member/api/order-withdraw';
 import { copyToClipboard } from '#/views/quxia/utils/clipboard';
 
 import { columns, querySchema } from './data';
+import orderRejectModal from './order-reject-modal.vue';
+
+const activeStatus = ref<string>('pending');
+
+const statusOptions = [
+  { label: '待处理', value: 'pending' },
+  { label: '已处理', value: 'completed' },
+];
 
 const formOptions: VbenFormProps = {
   schema: querySchema(),
@@ -29,7 +39,7 @@ const formOptions: VbenFormProps = {
   fieldMappingTime: [
     [
       'createTime',
-      ['beginTime', 'endTime'],
+      ['startTime', 'endTime'],
       ['YYYY-MM-DD 00:00:00', 'YYYY-MM-DD 23:59:59'],
     ],
   ],
@@ -50,6 +60,7 @@ const gridOptions: VxeGridProps = {
         const params: WithdrawOrderListQuery = {
           pageNum: page.currentPage,
           pageSize: page.pageSize,
+          status: activeStatus.value,
           ...formValues,
         };
         return await orderWithdrawApi.getWithdrawOrderList(params);
@@ -73,17 +84,36 @@ const [BasicTable, tableApi] = useVbenVxeGrid({
   gridOptions,
 });
 
+const [OrderRejectModal, orderRejectModalApi] = useVbenModal({
+  connectedComponent: orderRejectModal,
+});
+
+function handleRejectReload() {
+  tableApi.query();
+}
+
+function handleStatusChange(value: number | string) {
+  activeStatus.value = String(value);
+  tableApi.query();
+}
+
 async function handleProcess(row: WithdrawOrderInfo) {
   Modal.confirm({
-    content: `确定要处理该提现订单吗？订单号：${row.orderNo}`,
+    okText: '确认',
+    cancelText: '取消',
+    content: `确定要审核通过该提现订单吗？订单号：${row.orderNo}`,
     onCancel() {},
     onOk() {
-      orderWithdrawApi.processWithdrawOrder(row.id).then(() => {
+      orderWithdrawApi.processWithdrawOrder({ id: row.id, status: 'completed' }).then(() => {
         tableApi.query();
       });
     },
-    title: '操作提示',
+    title: '审核通过',
   });
+}
+
+function handleReject(row: WithdrawOrderInfo) {
+  orderRejectModalApi.setData({ id: row.id }).open();
 }
 
 function copyAccount(row: WithdrawOrderInfo) {
@@ -97,7 +127,13 @@ function copyAccount(row: WithdrawOrderInfo) {
   <Page :auto-content-height="true">
     <BasicTable class="flex-1 overflow-hidden" table-title="提现订单列表">
       <template #toolbar-tools>
-        <Space />
+        <Space>
+          <Segmented
+            v-model:value="activeStatus"
+            :options="statusOptions"
+            @change="handleStatusChange"
+          />
+        </Space>
       </template>
       <template #withdraw-cell="{ row }">
         <div
@@ -116,12 +152,16 @@ function copyAccount(row: WithdrawOrderInfo) {
         </div>
       </template>
       <template #action="{ row }">
-        <Space>
+        <Space v-if="row.status === 'pending'">
           <action-button size="small" type="primary" @click="handleProcess(row)">
-            处理
+            通过
+          </action-button>
+          <action-button size="small" type="default" @click="handleReject(row)">
+            驳回
           </action-button>
         </Space>
       </template>
     </BasicTable>
+    <OrderRejectModal @reload="handleRejectReload" />
   </Page>
 </template>
