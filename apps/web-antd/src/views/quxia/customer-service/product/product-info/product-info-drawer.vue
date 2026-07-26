@@ -13,10 +13,10 @@ import { Button, Image } from 'antdv-next';
 import { useVbenForm } from '#/adapter/form';
 import { Tinymce } from '#/components/tinymce';
 import { defaultFormValueGetter, useBeforeCloseDiff } from '#/utils/popup';
-
-import { productInfoApi } from '../api/product-info';
 import { workspaceSchemeApi } from '#/views/dashboard/workspace/api';
 import CarouselImageUpload from '#/views/dashboard/workspace/components/carousel-image-upload.vue';
+
+import { productInfoApi } from '../api/product-info';
 import { drawerSchema } from './data';
 
 const emit = defineEmits<{ reload: [] }>();
@@ -148,7 +148,7 @@ async function handleClosed() {
             <Button
               size="small"
               type="primary"
-              @click.stop="imageUploadApi.setData({ uploadApi: workspaceSchemeApi.uploadImage, ossConfName: 'image', maxWidth: 720 }).open()"
+              @click.stop="imageUploadApi.setData({ uploadApi: workspaceSchemeApi.uploadImage, ossConfName: 'common-system', maxWidth: 720 }).open()"
             >
               重新上传
             </Button>
@@ -166,7 +166,7 @@ async function handleClosed() {
         <div
           v-else
           class="flex h-48 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 transition-all hover:border-blue-400 hover:bg-blue-50"
-          @click="imageUploadApi.setData({ uploadApi: workspaceSchemeApi.uploadImage, ossConfName: 'image', maxWidth: 720 }).open()"
+          @click="imageUploadApi.setData({ uploadApi: workspaceSchemeApi.uploadImage, ossConfName: 'common-system', maxWidth: 720 }).open()"
         >
           <div class="mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-gray-200">
             <span class="text-2xl text-gray-400">+</span>
