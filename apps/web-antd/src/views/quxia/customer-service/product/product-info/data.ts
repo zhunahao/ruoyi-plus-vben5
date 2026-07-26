@@ -126,10 +126,4 @@ export const drawerSchema: FormSchemaGetter = () => [
       class: 'w-auto',
     },
   },
-  {
-    component: 'ImageUpload',
-    fieldName: 'mainImage',
-    label: '主图',
-    // rules: 'required',
-  }
 ];
