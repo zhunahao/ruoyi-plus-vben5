@@ -327,7 +327,7 @@ fetchList();
           <div
             v-else
             class="flex h-48 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 transition-all hover:border-blue-400 hover:bg-blue-50"
-            @click="imageUploadApi.setData({ uploadApi: workspaceSchemeApi.uploadImage, ossConfName: 'image', maxWidth: 720 }).open()"
+            @click="imageUploadApi.setData({ uploadApi: workspaceSchemeApi.uploadImage, ossConfName: 'common-system', maxWidth: 720 }).open()"
           >
             <div class="mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-gray-200">
               <span class="text-2xl text-gray-400">+</span>

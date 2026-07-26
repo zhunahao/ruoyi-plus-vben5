@@ -69,6 +69,14 @@ export const drawerSchema: FormSchemaGetter = () => [
   },
   {
     component: 'Input',
+    dependencies: {
+      show: () => false,
+      triggerFields: [''],
+    },
+    fieldName: 'mainImage',
+  },
+  {
+    component: 'Input',
     fieldName: 'name',
     label: '商品名称',
     rules: 'required',
