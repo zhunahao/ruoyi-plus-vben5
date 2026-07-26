@@ -1,18 +1,27 @@
 <script setup lang="ts">
 import type { VbenFormProps } from '@vben/common-ui';
 
+import type { MemberFinanceResponse } from '../api/member-info/model';
+
 import type { VxeGridProps } from '#/adapter/vxe-table';
-import type { InventoryRecordQuery } from '#/views/quxia/customer-service/member/api/inventory-record/model';
+
+import { computed, ref } from 'vue';
 
 import { Page } from '@vben/common-ui';
 
-import { Tag } from 'antdv-next';
-import { computed, ref } from 'vue';
+import { Space, Tag } from 'antdv-next';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import { inventoryRecordApi } from '#/views/quxia/customer-service/member/api/inventory-record';
 
+import { inventoryRecordApi } from '../api/inventory-record';
+import { memberApi } from '../api/member-info';
 import { columns, querySchema } from './data';
+
+const memberFinance = ref<MemberFinanceResponse>({
+  totalBalance: 0,
+  totalSettledEarnings: 0,
+  inventorySums: [],
+});
 
 const pageInfo = ref({ currentPage: 1, pageSize: 10 });
 
@@ -76,21 +85,35 @@ const [BasicTable, tableApi] = useVbenVxeGrid({
   formOptions,
   gridOptions,
 });
+
+memberApi.getFinanceSum().then((res) => {
+  memberFinance.value = res;
+  // console.log('会员总余额和总收益：', res);
+}).catch((error) => {
+  console.error('获取会员总余额和总收益失败：', error);
+});
 </script>
 
 <template>
   <Page :auto-content-height="true">
     <BasicTable class="flex-1 overflow-hidden" table-title="库存记录列表">
+      <template #toolbar-actions>
+        <Space class="ml-[40px]" direction="vertical">
+          <span>总库存：</span>
+          <span v-for="item in memberFinance.inventorySums" :key="item.productName">{{ item.productName }}：{{
+            item.totalQuantity }}</span>
+        </Space>
+      </template>
       <template #seq="{ rowIndex }">
         <span>{{ startIndex + rowIndex }}</span>
       </template>
       <template #quantity="{ row }">
         <span
-          :style="{
-            color: row.type === 'in' ? 'green' : 'red',
-            fontWeight: 'bold',
-          }"
-        >
+:style="{
+          color: row.type === 'in' ? 'green' : 'red',
+          fontWeight: 'bold',
+        }"
+>
           {{ row.quantity }}
         </span>
       </template>

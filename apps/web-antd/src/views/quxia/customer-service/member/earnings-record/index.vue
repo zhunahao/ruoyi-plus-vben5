@@ -1,17 +1,21 @@
 <script setup lang="ts">
 import type { VbenFormProps } from '@vben/common-ui';
 
+import type { MemberFinanceResponse } from '../api/member-info/model';
+
 import type { VxeGridProps } from '#/adapter/vxe-table';
 import type { EarningsRecordQuery } from '#/views/quxia/customer-service/member/api/earnings-record/model';
 
-import { Page } from '@vben/common-ui';
-
-import { Tag } from 'antdv-next';
 import { computed, ref } from 'vue';
 
-import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import { earningsRecordApi } from '#/views/quxia/customer-service/member/api/earnings-record';
+import { Page } from '@vben/common-ui';
 
+import { Space, Statistic, Tag } from 'antdv-next';
+
+import { useVbenVxeGrid } from '#/adapter/vxe-table';
+
+import { earningsRecordApi } from '../api/earnings-record';
+import { memberApi } from '../api/member-info';
 import { columns, querySchema } from './data';
 
 const earningsTypeColorMap: Record<string, string> = {
@@ -28,6 +32,12 @@ const statusColorMap: Record<string, string> = {
   settled: 'green',
   cancelled: 'red',
 };
+
+const memberFinance = ref<MemberFinanceResponse>({
+  totalBalance: 0,
+  totalSettledEarnings: 0,
+  inventorySums: [],
+});
 
 const pageInfo = ref({ currentPage: 1, pageSize: 10 });
 
@@ -91,11 +101,23 @@ const [BasicTable, tableApi] = useVbenVxeGrid({
   formOptions,
   gridOptions,
 });
+
+memberApi.getFinanceSum().then((res) => {
+  memberFinance.value = res;
+  // console.log('会员总余额和总收益：', res);
+}).catch((error) => {
+  console.error('获取会员总余额和总收益失败：', error);
+});
 </script>
 
 <template>
   <Page :auto-content-height="true">
     <BasicTable class="flex-1 overflow-hidden" table-title="收益记录">
+      <template #toolbar-actions>
+        <Space class="ml-[40px]">
+          <Statistic title="总收益(元)" :value="memberFinance.totalSettledEarnings" />
+        </Space>
+      </template>
       <template #seq="{ rowIndex }">
         <span>{{ startIndex + rowIndex }}</span>
       </template>
