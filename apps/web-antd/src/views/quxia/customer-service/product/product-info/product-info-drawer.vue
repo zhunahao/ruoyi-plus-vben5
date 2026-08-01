@@ -21,6 +21,8 @@ import { drawerSchema } from './data';
 
 const emit = defineEmits<{ reload: [] }>();
 
+const ossConfName = import.meta.env.VITE_GLOB_OSS_CONFIG || 'common-system';
+
 const isUpdate = ref(false);
 const uploadedUrl = ref('');
 const previewVisible = ref(false);
@@ -148,7 +150,7 @@ async function handleClosed() {
             <Button
               size="small"
               type="primary"
-              @click.stop="imageUploadApi.setData({ uploadApi: workspaceSchemeApi.uploadImage, ossConfName: 'common-system', maxWidth: 720 }).open()"
+              @click.stop="imageUploadApi.setData({ uploadApi: workspaceSchemeApi.uploadImage, ossConfName, maxWidth: 720 }).open()"
             >
               重新上传
             </Button>
@@ -166,7 +168,7 @@ async function handleClosed() {
         <div
           v-else
           class="flex h-48 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 transition-all hover:border-blue-400 hover:bg-blue-50"
-          @click="imageUploadApi.setData({ uploadApi: workspaceSchemeApi.uploadImage, ossConfName: 'common-system', maxWidth: 720 }).open()"
+          @click="imageUploadApi.setData({ uploadApi: workspaceSchemeApi.uploadImage, ossConfName, maxWidth: 720 }).open()"
         >
           <div class="mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-gray-200">
             <span class="text-2xl text-gray-400">+</span>
