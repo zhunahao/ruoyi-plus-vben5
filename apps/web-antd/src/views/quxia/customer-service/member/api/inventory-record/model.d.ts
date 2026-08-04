@@ -39,7 +39,7 @@ export interface InventoryRecord {
   /** 变动类型（in: 入库, out: 出库） */
   type: string;
   /** 变动数量 */
-  quantity: string;
+  quantityText: string;
   /** 变动前数量 */
   beforeQuantity: number;
   /** 变动后数量 */

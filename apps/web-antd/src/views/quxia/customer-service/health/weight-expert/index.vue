@@ -1,18 +1,21 @@
 <script setup lang="ts">
 import type { VbenFormProps } from '@vben/common-ui';
+import type { Recordable } from '@vben/types';
+
+import type { WeightExpert } from '../api/weight-expert/model';
+
 import type { VxeGridProps } from '#/adapter/vxe-table';
-import type { SysConfig } from '#/api/system/config/model';
+
 import { Page, useVbenDrawer } from '@vben/common-ui';
-import { Popconfirm, Space, Avatar } from 'antdv-next';
-import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
 import { preferences } from '@vben/preferences';
 
+import { Avatar, Popconfirm, Space } from 'antdv-next';
+
+import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
+
 import { weightExpertApi } from '../api/weight-expert';
-
 import { columns, querySchema } from './data';
-
 import weightExpertDrawer from './weight-expert-drawer.vue';
-import type { Recordable } from '@vben/types';
 
 const [WeightExpertDrawer, weightExpertDrawerApi] = useVbenDrawer({
   connectedComponent: weightExpertDrawer,
@@ -70,14 +73,14 @@ const [BasicTable, tableApi] = useVbenVxeGrid({
   gridOptions,
 });
 
-async function handleDelete(row: SysConfig) {
-  // await configRemove([row.configId]);
+async function handleDelete(row: WeightExpert) {
+  await weightExpertApi.deleteWeightExpert([row.id]);
   await tableApi.query();
 }
 
 function handleMultiDelete() {
   const rows = tableApi.grid.getCheckboxRecords();
-  const ids = rows.map((row: SysConfig) => row.configId);
+  const ids = rows.map((row: WeightExpert) => row.id);
   window.modal.confirm({
     title: '提示',
     okType: 'danger',
@@ -105,11 +108,13 @@ function handleEdit(row: Recordable<number>) {
     <BasicTable table-title="管理师列表">
       <template #toolbar-tools>
         <Space>
-          <a-button :disabled="!vxeCheckboxChecked(tableApi)" danger type="primary"
-            v-access:code="['system:config:remove']" @click="handleMultiDelete">
+          <a-button
+:disabled="!vxeCheckboxChecked(tableApi)" danger type="primary"
+             @click="handleMultiDelete"
+>
             {{ $t('pages.common.delete') }}
           </a-button>
-          <a-button type="primary" v-access:code="['system:config:add']" @click="handleAdd">
+          <a-button type="primary" @click="handleAdd">
             {{ $t('pages.common.add') }}
           </a-button>
         </Space>
@@ -120,11 +125,11 @@ function handleEdit(row: Recordable<number>) {
       </template>
       <template #action="{ row }">
         <Space>
-          <action-button v-access:code="['system:config:edit']" @click.stop="handleEdit(row)">
+          <action-button @click.stop="handleEdit(row)">
             {{ $t('pages.common.edit') }}
           </action-button>
           <Popconfirm placement="left" title="确认删除？" @confirm="handleDelete(row)">
-            <action-button danger v-access:code="['system:config:remove']" @click.stop="">
+            <action-button danger @click.stop="">
               {{ $t('pages.common.delete') }}
             </action-button>
           </Popconfirm>

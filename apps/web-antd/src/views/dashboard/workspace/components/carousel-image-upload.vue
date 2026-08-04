@@ -9,7 +9,6 @@ import { buildUUID } from '@vben/utils';
 
 import { Button, Spin, Upload } from 'antdv-next';
 
-import { uploadApi } from '#/api';
 import CropperImage from '#/components/cropper/src/cropper.vue';
 import { dataURLtoBlob } from '#/utils/file/base64Conver';
 
@@ -112,35 +111,26 @@ async function handleConfirm() {
   let result: any;
   try {
     uploading.value = true;
-    // 使用动态参数，优先于 props 默认值
+    // 动态参数优先于 props 默认值
     const currentUploadApi = dynamicParams.value.uploadApi || props.uploadApi;
     const currentOssConfName = dynamicParams.value.ossConfName || props.ossConfName;
     const currentMaxWidth = dynamicParams.value.maxWidth ?? props.maxWidth;
     const currentMaxHeight = dynamicParams.value.maxHeight ?? props.maxHeight;
 
-    if (currentUploadApi) {
-      // 使用传入的接口（workspaceSchemeApi.uploadImage 格式）
-      result = await currentUploadApi({
-        ossConfName: currentOssConfName,
-        file: fileObj,
-        maxWidth: currentMaxWidth,
-        maxHeight: currentMaxHeight,
-      });
-    } else {
-      // 使用项目默认上传接口
-      result = await uploadApi(fileObj, {
-        otherData: {
-          ossConfName: currentOssConfName,
-          maxWidth: currentMaxWidth,
-          maxHeight: currentMaxHeight,
-        },
-      });
+    if (!currentUploadApi) {
+      window.message?.warning?.('未配置上传接口');
+      return;
     }
-    // console.log('result:',result);
+
+    result = await currentUploadApi({
+      ossConfName: currentOssConfName,
+      file: fileObj,
+      maxWidth: currentMaxWidth,
+      maxHeight: currentMaxHeight,
+    });
+
     const uploadedUrl = result?.url || result?.data?.url || result;
     const uploadedFileName = result?.fileName || result?.data?.fileName || filename || '';
-    // console.log('uploadedUrl:',uploadedUrl);
-    // console.log('uploadedFileName:',uploadedFileName);
     emit('update:modelValue', uploadedUrl);
     emit('uploadSuccess', {
       data: uploadedUrl,

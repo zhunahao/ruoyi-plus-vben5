@@ -90,6 +90,12 @@ export const drawerSchema: FormSchemaGetter = () => [
     rules: 'required',
   },
   {
+    component: 'Input',
+    fieldName: 'specialties',
+    defaultValue: [],
+    label: '擅长领域',
+  },
+  {
     component: 'InputNumber',
     fieldName: 'serviceCount',
     label: '服务人数',

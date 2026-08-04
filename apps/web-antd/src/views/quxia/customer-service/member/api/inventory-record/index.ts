@@ -2,6 +2,7 @@ import type { InventoryRecord, InventoryRecordQuery } from './model';
 
 import type { PageResult } from '#/api/common';
 
+import { commonExport } from '#/api/helper';
 import { alovaInstance } from '#/utils/http';
 
 /**
@@ -19,6 +20,17 @@ export const inventoryRecordApi = {
       {
         params,
       },
+    );
+  },
+
+  /**
+   * 导出库存记录
+   * @param data 查询参数
+   */
+  exportData: (data: Record<string, any>) => {
+    return commonExport(
+      '/quxia-customer-service/inventoryrecord/export',
+      data,
     );
   },
 };

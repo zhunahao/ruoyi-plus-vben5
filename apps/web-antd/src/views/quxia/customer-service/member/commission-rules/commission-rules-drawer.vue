@@ -1,19 +1,19 @@
 <script setup lang="ts">
+import type { CommissionRules, CommissionRulesProduct } from './model';
+
+import type { VxeGridProps } from '#/adapter/vxe-table';
+
 import { computed, ref } from 'vue';
 
 import { useVbenDrawer } from '@vben/common-ui';
 
-import { Divider, Popconfirm, Select, Spin, message } from 'antdv-next';
+import { Divider, message, Popconfirm, Spin } from 'antdv-next';
 
 import { useVbenForm } from '#/adapter/form';
-import type { VxeGridProps } from '#/adapter/vxe-table';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-
+import { defaultFormValueGetter, useBeforeCloseDiff } from '#/utils/popup';
 import { memberLevelApi } from '#/views/quxia/customer-service/member/api/member-level';
 import { productInfoApi } from '#/views/quxia/customer-service/product/api/product-info';
-import { defaultFormValueGetter, useBeforeCloseDiff } from '#/utils/popup';
-
-import type { CommissionRules, CommissionRulesProduct } from './model';
 
 import { commissionRulesApi } from './api';
 import { levelFormSchema, levelProductColumns, productColumns } from './data';
@@ -69,14 +69,8 @@ const [ProductGrid, productGridApi] = useVbenVxeGrid({
   gridOptions: productGridOptions as any,
 });
 
-/** 可选产品列表（用于下拉选择） */
+/** 可选产品列表（用于商品名称查找） */
 const availableProducts = ref<any[]>([]);
-const productSelectOptions = computed(() =>
-  availableProducts.value.map((p: any) => ({
-    label: `${p.name} (¥${p.price || 0})`,
-    value: p.id,
-  })),
-);
 
 // ==================== 商品模式：等级表格数据 ====================
 const levelProductData = ref<any[]>([]);
@@ -112,9 +106,9 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
     if (!isOpen) return;
 
     const data = drawerApi.getData() as {
-      mode: 'level' | 'product';
       commissionRules?: string;
       id: number;
+      mode: 'level' | 'product';
       name: string;
     };
 
@@ -140,9 +134,21 @@ async function loadLevelData(rulesJson?: string) {
   try {
     loading.value = true;
 
+    // 先加载可选产品列表（后续用于商品名称查找和下拉选择）
+    const productList = await productInfoApi.productInfoList({
+      pageNum: 1,
+      pageSize: 9999,
+    });
+    availableProducts.value = productList?.rows || [];
+
     // 从传入的 commissionRules JSON 解析规则，不重新查询接口
     if (rulesJson) {
-      const rules = JSON.parse(rulesJson);
+      // 将 productId 数值转为字符串，避免 Long 型精度丢失
+      const safeJson = rulesJson.replaceAll(
+        /"productId"\s*:\s*(\d+)/g,
+        '"productId":"$1"',
+      );
+      const rules = JSON.parse(safeJson);
       await levelFormApi.setValues({
         healthConsultationsRequirePayment:
           rules.healthConsultationsRequirePayment ?? false,
@@ -161,25 +167,16 @@ async function loadLevelData(rulesJson?: string) {
       productData.value = [];
     }
 
-    // 通过接口获取商品名称填充到 productData
-    if (productData.value.length > 0) {
-      const namePromises = productData.value.map(async (p) => {
-        const info = await productInfoApi.productInfoInfo(p.productId);
-        p.productName = info?.name || `商品 #${p.productId}`;
-      });
-      await Promise.all(namePromises);
+    // 从已加载的可选产品列表中查找名称，无需逐个调用接口
+    for (const p of productData.value) {
+      p.productName = availableProducts.value.find(
+        (item: any) => `${item.id}` === `${p.productId}`,
+      )?.name || `商品 #${p.productId}`;
     }
 
     productGridApi.grid.loadData(productData.value);
-
-    // 加载可选产品列表
-    const productList = await productInfoApi.productInfoList({
-      pageNum: 1,
-      pageSize: 9999,
-    });
-    availableProducts.value = productList?.rows || [];
-  } catch (e) {
-    console.error(e);
+  } catch (error) {
+    console.error(error);
   } finally {
     loading.value = false;
   }
@@ -209,10 +206,18 @@ async function loadProductData() {
       // 排除空值、空字符串
       if (rawRules && rawRules !== '') {
         try {
-          const rules =
-            typeof rawRules === 'string' ? JSON.parse(rawRules) : rawRules;
+          // 将 productId 数值转为字符串，避免 Long 型精度丢失
+          const safeRules =
+            typeof rawRules === 'string'
+              ? JSON.parse(
+                  rawRules.replaceAll(
+                    /"productId"\s*:\s*(\d+)/g,
+                    '"productId":"$1"',
+                  ),
+                )
+              : rawRules;
           productInfo =
-            (rules.products || []).find(
+            (safeRules.products || []).find(
               (p: any) => String(p.productId) === String(productId.value),
             ) || {};
         } catch {
@@ -228,37 +233,11 @@ async function loadProductData() {
       };
     });
     levelProductGridApi.grid.loadData(levelProductData.value);
-  } catch (e) {
-    console.error(e);
+  } catch (error) {
+    console.error(error);
   } finally {
     loading.value = false;
   }
-}
-
-// ==================== 等级模式：添加产品 ====================
-function onProductSelectChange(selectedIds: number[]) {
-  const existingIds = productData.value.map(
-    (p: CommissionRulesProduct) => p.productId,
-  );
-  const newIds = selectedIds.filter(
-    (id: number) => !existingIds.includes(id),
-  );
-  if (newIds.length === 0) return;
-
-  newIds.forEach((id: number) => {
-    const option = productSelectOptions.value.find(
-      (o: any) => o.value === id,
-    );
-    const newProduct: CommissionRulesProduct = {
-      productId: id,
-      productName: option?.label?.split(' (¥')[0] || `商品${id}`,
-      price: 0,
-      matchingQuantity: 0,
-      indirectReferralReward: 0,
-    };
-    productGridApi.grid.insert(newProduct);
-    productData.value.push(newProduct);
-  });
 }
 
 // ==================== 等级模式：删除产品 ====================
@@ -343,15 +322,8 @@ async function handleClosed() {
 
       <Divider />
 
-      <div class="mb-2 flex items-center justify-between">
+      <div class="mb-2">
         <span class="text-base font-medium">佣金产品配置</span>
-        <Select
-          mode="multiple"
-          placeholder="选择商品添加"
-          :options="productSelectOptions"
-          style="width: 300px"
-          @change="onProductSelectChange"
-        />
       </div>
       <ProductGrid>
         <template #productAction="{ row }">
