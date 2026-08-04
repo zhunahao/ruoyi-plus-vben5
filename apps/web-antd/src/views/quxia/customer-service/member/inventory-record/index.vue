@@ -12,6 +12,7 @@ import { Page } from '@vben/common-ui';
 import { Space, Tag } from 'antdv-next';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
+import { useBlobExport } from '#/utils/file/export';
 
 import { inventoryRecordApi } from '../api/inventory-record';
 import { memberApi } from '../api/member-info';
@@ -86,6 +87,15 @@ const [BasicTable, tableApi] = useVbenVxeGrid({
   gridOptions,
 });
 
+const { exportBlob, exportLoading, buildExportFileName } = useBlobExport(
+  inventoryRecordApi.exportData,
+);
+async function handleExport() {
+  const formValues = await tableApi.formApi.getValues();
+  const fileName = buildExportFileName('库存记录');
+  exportBlob({ data: formValues, fileName });
+}
+
 memberApi.getFinanceSum().then((res) => {
   memberFinance.value = res;
   // console.log('会员总余额和总收益：', res);
@@ -104,6 +114,17 @@ memberApi.getFinanceSum().then((res) => {
             item.totalQuantity }}</span>
         </Space>
       </template>
+      <template #toolbar-tools>
+        <Space>
+          <a-button
+            :loading="exportLoading"
+            :disabled="exportLoading"
+            @click="handleExport"
+          >
+            导出
+          </a-button>
+        </Space>
+      </template>
       <template #seq="{ rowIndex }">
         <span>{{ startIndex + rowIndex }}</span>
       </template>
@@ -114,7 +135,7 @@ memberApi.getFinanceSum().then((res) => {
           fontWeight: 'bold',
         }"
 >
-          {{ row.quantity }}
+          {{ row.quantityText }}
         </span>
       </template>
       <template #source-type="{ row }">

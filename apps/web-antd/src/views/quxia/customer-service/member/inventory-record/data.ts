@@ -51,7 +51,7 @@ export const columns: VxeGridProps['columns'] = [
     showOverflow: true,
   },
   {
-    field: 'quantity',
+    field: 'quantityText',
     title: '变动数量',
     width: 120,
     slots: { default: 'quantity' },
