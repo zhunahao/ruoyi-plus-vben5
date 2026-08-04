@@ -12,10 +12,10 @@ import { Image, Popconfirm, Space, Spin } from 'antdv-next';
 
 import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
 
+import CommissionRulesDrawer from '../../member/commission-rules/commission-rules-drawer.vue';
 import { productInfoApi } from '../api/product-info';
 import { columns, querySchema } from './data';
 import productInfoDrawer from './product-info-drawer.vue';
-import CommissionRulesDrawer from '../../member/commission-rules/commission-rules-drawer.vue';
 
 const [ProductInfoDrawer, productInfoDrawerApi] = useVbenDrawer({
   connectedComponent: productInfoDrawer,
@@ -126,11 +126,11 @@ function handleCommissionRules(row: ProductInfo) {
         <Space>
           <a-button
 :disabled="!vxeCheckboxChecked(tableApi)" danger type="primary"
-            v-access:code="['system:config:remove']" @click="handleMultiDelete"
+             @click="handleMultiDelete"
 >
             {{ $t('pages.common.delete') }}
           </a-button>
-          <a-button type="primary" v-access:code="['system:config:add']" @click="handleAdd">
+          <a-button type="primary" @click="handleAdd">
             {{ $t('pages.common.add') }}
           </a-button>
         </Space>
@@ -153,14 +153,14 @@ function handleCommissionRules(row: ProductInfo) {
       </template>
       <template #action="{ row }">
         <Space>
-          <action-button v-access:code="['system:config:edit']" @click.stop="handleEdit(row)">
+          <action-button @click.stop="handleEdit(row)">
             {{ $t('pages.common.edit') }}
           </action-button>
           <action-button @click.stop="handleCommissionRules(row)">
             分成规则
           </action-button>
           <Popconfirm placement="left" title="确认删除？" @confirm="handleDelete(row)">
-            <action-button danger v-access:code="['system:config:remove']" @click.stop="">
+            <action-button danger @click.stop="">
               {{ $t('pages.common.delete') }}
             </action-button>
           </Popconfirm>
