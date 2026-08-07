@@ -199,6 +199,14 @@ function handleViewInventory(row: Recordable<number>) {
           <span style="font-size: 12px; color: gray">会员编号：{{ row.memberCode }}</span>
         </div>
       </template>
+      <template #levelName-cell="{ row }">
+        <div class="custom-cell" style="font-weight: bold">
+          {{ row.levelName }}
+          <span v-if="row.superiorName" style="font-size: 12px; color: gray; display: block">
+            上级：{{ row.superiorName }}
+          </span>
+        </div>
+      </template>
       <template #balance-cell="{ row }">
         <div class="custom-cell" style="font-weight: bold">
           余额：{{ row.balance }}<br />

@@ -48,6 +48,7 @@ export const columns: VxeGridProps['columns'] = [
     field: 'levelName',
     title: '会员等级',
     minWidth: 100,
+    slots: { default: 'levelName-cell' },
   },
   {
     field: 'balance',
