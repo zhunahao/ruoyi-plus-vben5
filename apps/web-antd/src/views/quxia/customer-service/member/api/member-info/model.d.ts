@@ -1,4 +1,3 @@
-import type { n } from "vue-router/dist/index-ZwgQvn2r.js";
 
 // 会员类型定义
 export interface MemberInfo {
@@ -17,6 +16,7 @@ export interface MemberInfo {
   recommendMemberName: string;
   recommendMemberPhone: string;
   recommendMemberCode?: string;
+  superiorName?: string;
   createTime: string;
   status: number; // 0: 禁用, 1: 启用
 }
